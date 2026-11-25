@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LYNX — Disciplina Move Resultados</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header Minimalista -->
+  <header class="header">
+    <div class="container nav-container">
+      <a href="#" class="brand-logo" aria-label="LYNX Home">
+        <img src="assets/lynx-icon.png" alt="LYNX" class="brand-icon" />
+        <img src="assets/lynx-wordmark.png" alt="LYNX" class="brand-wordmark" />
+      </a>
+
+      <nav class="nav">
+        <a href="#colecao">Coleção</a>
+        <a href="#conceito">Conceito</a>
+        <a href="#engenharia">Engenharia</a>
+      </nav>
+
+      <button class="bag-trigger" id="open-cart" aria-label="Abrir sacola">
+        <span>SACOLA</span>
+        <span class="bag-count" id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Editorial -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="kicker">SÉRIE 01 — BLACKOUT EDITION</span>
+        <h1>A forma segue a disciplina.</h1>
+        <p class="hero-lead">
+          Vestuário técnico monocromático desenhado para eliminar excessos. Alta compressão, toque frio e corte preciso para quem constrói resultados em silêncio.
+        </p>
+        <div class="hero-cta-row">
+          <a href="#colecao" class="btn-solid">Ver Coleção</a>
+          <a href="#conceito" class="btn-link">Nosso Conceito</a>
+        </div>
+      </div>
+
+      <div class="hero-artwork">
+        <div class="hero-frame">
+          <img src="assets/lynx-hero-cat.jpg" alt="LYNX — Disciplina Move Resultados" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 1: Coleção Essencial -->
+  <section id="colecao" class="collection">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">PEÇAS ESSENCIAIS</span>
+          <h2>Coleção Blackout</h2>
+        </div>
+        <div class="filter-bar" id="category-filters">
+          <button class="filter-tab active" data-category="todos">Todos</button>
+          <button class="filter-tab" data-category="masculino">Masculino</button>
+          <button class="filter-tab" data-category="feminino">Feminino</button>
+        </div>
+      </div>
+
+      <div class="product-gallery" id="products-grid">
+        <!-- Renderizado via script.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 2: Conceito (Filosofia & Identidade) -->
+  <section id="conceito" class="concept-section">
+    <div class="container">
+      <div class="concept-header">
+        <span class="kicker">01 // O CONCEITO LYNX</span>
+        <h2>Disciplina move resultados.</h2>
+        <p class="concept-statement">
+          Nascemos da ideia de que a verdadeira performance não precisa de cores artificiais ou excesso de informação. Assim como o lince age com precisão e silêncio, cada peça é pensada para manter sua mente focada unicamente no treino.
+        </p>
+      </div>
+
+      <div class="concept-showcase">
+        <div class="concept-pillars">
+          <div class="pillar-card">
+            <span class="pillar-tag">FILOSOFIA</span>
+            <h3>Foco sem distrações</h3>
+            <p>Um guarda-roupa de treino funcional e sóbrio elimina decisões desnecessárias na sua rotina diária.</p>
+          </div>
+          <div class="pillar-card">
+            <span class="pillar-tag">ESTÉTICA</span>
+            <h3>Minimalismo Atemporal</h3>
+            <p>Tons profundos — Preto Fosco, Verde Escuro e Azul Marinho — que transitam da academia ao dia a dia com elegância.</p>
+          </div>
+          <div class="pillar-card">
+            <span class="pillar-tag">ASSINATURA</span>
+            <h3>Identidade em Detalhe</h3>
+            <p>O lema gravado discretamente na manga lembra o compromisso diário com a evolução constante.</p>
+          </div>
+        </div>
+
+        <div class="concept-feature-media">
+          <img src="assets/lynx-sleeve.jpg" alt="Detalhe da manga LYNX — Disciplina Move Resultados" />
+          <div class="concept-caption">
+            <span>ASSINATURA NA MANGA</span>
+            <strong>DISCIPLINA · MOVE · RESULTADOS —</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 3: Engenharia (Tecnologia Têxtil & Construção) -->
+  <section id="engenharia" class="engineering-section">
+    <div class="container">
+      <div class="engineering-grid">
+        <div class="engineering-visual">
+          <div class="engineering-img-frame">
+            <img src="assets/lynx-detail-tag.jpg" alt="Macro da etiqueta tecida e trama Dry-Tech LYNX" />
+          </div>
+          <div class="engineering-metrics">
+            <div class="metric-box">
+              <strong>UV 50+</strong>
+              <span>Proteção Solar</span>
+            </div>
+            <div class="metric-box">
+              <strong>4-WAY</strong>
+              <span>Elasticidade</span>
+            </div>
+            <div class="metric-box">
+              <strong>0%</strong>
+              <span>Transparência</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="engineering-content">
+          <span class="kicker">02 // ENGENHARIA TÊXTIL</span>
+          <h2>Construção de alta precisão.</h2>
+          <p class="engineering-intro">
+            Desenvolvemos nossas malhas com foco em controle térmico, sustentação muscular e resistência à abrasão mesmo após centenas de lavagens.
+          </p>
+
+          <div class="specs-list">
+            <div class="spec-row">
+              <span class="spec-index">01</span>
+              <div>
+                <h3>Malha Dry-Tech de Toque Frio</h3>
+                <p>Microfibras de poliamida que aceleram a evaporação do suor e mantêm a temperatura corporal estável em séries intensas.</p>
+              </div>
+            </div>
+
+            <div class="spec-row">
+              <span class="spec-index">02</span>
+              <div>
+                <h3>Corte Anatômico Raglan</h3>
+                <p>Costuras planas deslocadas que acompanham a biomecânica dos ombros e escápulas sem gerar pontos de atrito.</p>
+              </div>
+            </div>
+
+            <div class="spec-row">
+              <span class="spec-index">03</span>
+              <div>
+                <h3>Compressão & Retenção de Forma</h3>
+                <p>Elastano de alta memória que modela o corpo com firmeza sem lacear ou perder a estrutura original.</p>
+              </div>
+            </div>
+
+            <div class="spec-row">
+              <span class="spec-index">04</span>
+              <div>
+                <h3>Acabamento em Micro-Relevo & Etiqueta Tecida</h3>
+                <p>Aplicação do símbolo LYNX em polímero prateado de alta aderência que não racha e etiqueta interna de toque macio.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Convite / Rodapé Minimalista -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-invite">
+          <span class="kicker">LISTA PRIVADA</span>
+          <h3>Acesso antecipado aos próximos lançamentos.</h3>
+        </div>
+        <form class="minimal-form" id="newsletter-form">
+          <input type="email" placeholder="Digite seu e-mail" required />
+          <button type="submit">Inscrever →</button>
+        </form>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-brand">
+          <img src="assets/lynx-icon.png" alt="LYNX" class="footer-icon" />
+          <span class="footer-motto">DISCIPLINA MOVE RESULTADOS</span>
+        </div>
+        <span class="footer-copy">&copy; 2026 LYNX. Todos os direitos reservados.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sacola Lateral Clean -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3>SACOLA</h3>
+      <button class="close-cart" id="close-cart" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <p class="empty-cart">Sua sacola está vazia.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Subtotal</span>
+        <strong id="cart-total">R$ 0,00</strong>
+      </div>
+      <button class="btn-solid btn-full" id="checkout-btn">Finalizar Compra</button>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>
