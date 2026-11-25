@@ -16,32 +16,32 @@ const products = [
   },
   {
     id: 2,
-    name: "Top Racerback Sculpt",
+    name: "Conjunto Sculpt Top + Legging",
     category: "feminino",
-    description: "Alta sustentação com forro duplo zero transparência e toque acetinado fosco.",
-    price: 139.90,
+    description: "Top racerback de alta sustentação combinado com legging de cintura alta e compressão zero transparência.",
+    price: 269.90,
     sizes: ["PP", "P", "M", "G"],
     selectedSize: "P",
     selectedColor: "verde",
     colors: [
-      { key: "preto", name: "Preto Fosco", hex: "#141518", image: "assets/lynx-top.jpg" },
-      { key: "verde", name: "Verde Escuro", hex: "#133822", image: "assets/lynx-top-green.jpg" },
-      { key: "marinho", name: "Azul Marinho", hex: "#122444", image: "assets/lynx-top-navy.jpg" }
+      { key: "preto", name: "Preto Fosco", hex: "#141518", image: "assets/lynx-set-legging.jpg" },
+      { key: "verde", name: "Verde Escuro", hex: "#133822", image: "assets/lynx-set-legging-green.jpg" },
+      { key: "marinho", name: "Azul Marinho", hex: "#122444", image: "assets/lynx-set-legging-navy.jpg" }
     ]
   },
   {
     id: 3,
-    name: "Duo Pack Essential 01",
+    name: "Conjunto Aero Top + Short",
     category: "feminino",
-    description: "Conjunto essencial composto pela Camiseta Raglan + Top Racerback.",
-    price: 279.90,
-    sizes: ["P", "M", "G"],
+    description: "Top racerback combinado com short feminino de compressão anatômica e cós firme que não enrola.",
+    price: 229.90,
+    sizes: ["PP", "P", "M", "G"],
     selectedSize: "M",
     selectedColor: "marinho",
     colors: [
-      { key: "preto", name: "Preto Fosco", hex: "#141518", image: "assets/lynx-combo.jpg" },
-      { key: "verde", name: "Verde Escuro", hex: "#133822", image: "assets/lynx-combo-green.jpg" },
-      { key: "marinho", name: "Azul Marinho", hex: "#122444", image: "assets/lynx-combo-navy.jpg" }
+      { key: "preto", name: "Preto Fosco", hex: "#141518", image: "assets/lynx-set-short.jpg" },
+      { key: "verde", name: "Verde Escuro", hex: "#133822", image: "assets/lynx-set-short-green.jpg" },
+      { key: "marinho", name: "Azul Marinho", hex: "#122444", image: "assets/lynx-set-short-navy.jpg" }
     ]
   }
 ];
