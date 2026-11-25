@@ -323,9 +323,8 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
 
 .product-media {
   position: relative;
-  aspect-ratio: 4 / 3.7;
-  max-height: 310px;
-  background: var(--surface);
+  aspect-ratio: 1 / 1;
+  background: #08090b;
   overflow: hidden;
   margin-bottom: 14px;
   border: 1px solid var(--line);
@@ -334,7 +333,7 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
 .product-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
