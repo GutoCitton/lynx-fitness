@@ -1,3 +1,5 @@
+const FREE_SHIPPING_THRESHOLD = 299.0;
+
 const angleLabels = [
   "1/8 · 0° FRENTE",
   "2/8 · 45° FRONTAL DIR.",
@@ -37,6 +39,31 @@ const products = [
   },
   {
     id: 2,
+    slug: "short-2em1",
+    name: "Short 2 em 1 Stealth Performance",
+    category: "masculino",
+    description: "Short externo leve com bermuda térmica interna de compressão e bolso oculto.",
+    fullDescription:
+      "Construído para máxima mobilidade em treinos de perna, corrida e cross-training. O Short 2 em 1 Stealth possui camada externa em tecido tecnológico hidro-repelente com fendas laterais e liner interno de compressão que evita atrito e mantém o celular firme.",
+    price: 179.90,
+    installments: "em até 3x de R$ 59,96 sem juros",
+    sizes: ["P", "M", "G", "GG"],
+    selectedSize: "M",
+    selectedColor: "preto",
+    specs: [
+      { label: "Composição", value: "88% Poliamida · 12% Elastano" },
+      { label: "Construção", value: "Dupla Camada 2 em 1 (5 Polegadas)" },
+      { label: "Funcionalidade", value: "Bolso Interno Anti-Impacto" },
+      { label: "Acabamento", value: "Cós Anatômico + Fenda Lateral" }
+    ],
+    colors: [
+      { key: "preto", name: "Preto Fosco", hex: "#141518", image: "assets/lynx-short-2em1.jpg" },
+      { key: "verde", name: "Verde Escuro", hex: "#133822", image: "assets/lynx-short-2em1-green.jpg" },
+      { key: "marinho", name: "Azul Marinho", hex: "#122444", image: "assets/lynx-short-2em1-navy.jpg" }
+    ]
+  },
+  {
+    id: 3,
     slug: "set-legging",
     name: "Conjunto Sculpt Top + Legging",
     category: "feminino",
@@ -61,13 +88,13 @@ const products = [
     ]
   },
   {
-    id: 3,
+    id: 4,
     slug: "set-short",
     name: "Conjunto Aero Top + Short",
     category: "feminino",
     description: "Top racerback combinado com short feminino de compressão anatômica e cós firme que não enrola.",
     fullDescription:
-      "Projetado para máxima liberdade de movimento em dias quentes, corridas e treinos funcionais. O Conjunto Aero combina o Top Racerback ao Short feminino de compressão intermediária com barras siliconadas que permanecem firmes sem subir durante o exercício.",
+      "Projetado para máxima liberdade de movimento em dias quentes, corridas e treinos funcionais. O Conjunto Aero combina o Top Racerback ao Short feminino de compressão intermediária com barras firmes que permanecem no lugar sem subir durante o exercício.",
     price: 229.90,
     installments: "em até 3x de R$ 76,63 sem juros",
     sizes: ["PP", "P", "M", "G"],
@@ -88,6 +115,15 @@ const products = [
 ];
 
 let cart = [];
+try {
+  const savedCart = localStorage.getItem("lynx-cart-v2");
+  if (savedCart) {
+    cart = JSON.parse(savedCart);
+  }
+} catch (err) {
+  cart = [];
+}
+
 let currentCategory = "todos";
 let activeModalProductId = null;
 let activeModalAngle = 0;
@@ -99,10 +135,28 @@ const cartItemsContainer = document.getElementById("cart-items");
 const cartTotalEl = document.getElementById("cart-total");
 const cartDrawer = document.getElementById("cart-drawer");
 const cartOverlay = document.getElementById("cart-overlay");
+const freeShippingTextEl = document.getElementById("free-shipping-text");
+const freeShippingFillEl = document.getElementById("free-shipping-fill");
+
+// Toast
+const toastEl = document.getElementById("lynx-toast");
+const toastMsgEl = document.getElementById("lynx-toast-msg");
+let toastTimeout = null;
+
+function showToast(message) {
+  if (!toastEl || !toastMsgEl) return;
+  toastMsgEl.textContent = message;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toastEl.classList.remove("show");
+  }, 3200);
+}
 
 // Modal DOM Elements
 const productModal = document.getElementById("product-modal");
 const modalCloseBtn = document.getElementById("modal-close");
+const modalStage = document.getElementById("modal-stage");
 const modalImg = document.getElementById("modal-img");
 const anglePrevBtn = document.getElementById("angle-prev");
 const angleNextBtn = document.getElementById("angle-next");
@@ -119,6 +173,8 @@ const modalColorNameEl = document.getElementById("modal-color-name");
 const modalSizesEl = document.getElementById("modal-sizes");
 const modalSizeNameEl = document.getElementById("modal-size-name");
 const modalAddBtn = document.getElementById("modal-add-btn");
+const sizeGuideBtn = document.getElementById("size-guide-btn");
+const sizeGuidePanel = document.getElementById("size-guide-panel");
 
 function formatBRL(value) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -227,6 +283,9 @@ function openProductModal(productId) {
 
   activeModalProductId = productId;
   activeModalAngle = 0;
+  if (sizeGuidePanel) {
+    sizeGuidePanel.hidden = true;
+  }
   preloadProductAngles(product, product.selectedColor);
   renderModalContent();
 
@@ -312,13 +371,54 @@ function renderModalContent() {
   `).join("");
 }
 
-anglePrevBtn.addEventListener("click", () => {
+anglePrevBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
   setModalAngle(activeModalAngle - 1);
 });
 
-angleNextBtn.addEventListener("click", () => {
+angleNextBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
   setModalAngle(activeModalAngle + 1);
 });
+
+// Drag-to-Rotate 360° (Mouse & Touch)
+let isDraggingStage = false;
+let dragStartX = 0;
+
+if (modalStage) {
+  modalStage.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button")) return;
+    isDraggingStage = true;
+    dragStartX = e.clientX;
+    modalStage.classList.add("dragging");
+    modalStage.setPointerCapture(e.pointerId);
+  });
+
+  modalStage.addEventListener("pointermove", (e) => {
+    if (!isDraggingStage) return;
+    const deltaX = e.clientX - dragStartX;
+    const stepThreshold = 28;
+    if (Math.abs(deltaX) >= stepThreshold) {
+      const steps = Math.trunc(deltaX / stepThreshold);
+      setModalAngle(activeModalAngle + steps);
+      dragStartX += steps * stepThreshold;
+    }
+  });
+
+  const endStageDrag = () => {
+    isDraggingStage = false;
+    modalStage.classList.remove("dragging");
+  };
+
+  modalStage.addEventListener("pointerup", endStageDrag);
+  modalStage.addEventListener("pointercancel", endStageDrag);
+}
+
+if (sizeGuideBtn && sizeGuidePanel) {
+  sizeGuideBtn.addEventListener("click", () => {
+    sizeGuidePanel.hidden = !sizeGuidePanel.hidden;
+  });
+}
 
 modalCloseBtn.addEventListener("click", closeProductModal);
 
@@ -347,47 +447,104 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+function saveCart() {
+  try {
+    localStorage.setItem("lynx-cart-v2", JSON.stringify(cart));
+  } catch (err) {
+    // ignore storage errors
+  }
+}
+
 function addToCart(productId) {
   const product = products.find(p => p.id === productId);
   if (!product) return;
 
   const activeColor = product.colors.find(c => c.key === product.selectedColor) || product.colors[0];
+  const itemKey = `${product.id}-${activeColor.key}-${product.selectedSize}`;
 
-  cart.push({
-    ...product,
-    size: product.selectedSize,
-    colorName: activeColor.name
-  });
+  const existing = cart.find(item => item.itemKey === itemKey);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      itemKey,
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      size: product.selectedSize,
+      colorKey: activeColor.key,
+      colorName: activeColor.name,
+      qty: 1
+    });
+  }
+
+  saveCart();
   updateCartUI();
   openCart();
+  showToast(`${product.name} (${activeColor.name}) adicionado à sacola.`);
+}
+
+function changeCartQty(index, delta) {
+  if (!cart[index]) return;
+  cart[index].qty += delta;
+  if (cart[index].qty <= 0) {
+    cart.splice(index, 1);
+  }
+  saveCart();
+  updateCartUI();
 }
 
 function removeFromCart(index) {
   cart.splice(index, 1);
+  saveCart();
   updateCartUI();
 }
 
 function updateCartUI() {
-  cartCount.textContent = cart.length;
+  const totalItems = cart.reduce((acc, item) => acc + (item.qty || 1), 0);
+  cartCount.textContent = totalItems;
+
+  const total = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
+  cartTotalEl.textContent = formatBRL(total);
+
+  // Free shipping progress bar
+  if (freeShippingTextEl && freeShippingFillEl) {
+    const pct = Math.min(100, Math.round((total / FREE_SHIPPING_THRESHOLD) * 100));
+    freeShippingFillEl.style.width = `${pct}%`;
+    if (total === 0) {
+      freeShippingTextEl.innerHTML = `Adicione itens para ganhar <strong>Frete Grátis</strong> acima de ${formatBRL(FREE_SHIPPING_THRESHOLD)}`;
+    } else if (total < FREE_SHIPPING_THRESHOLD) {
+      const remaining = FREE_SHIPPING_THRESHOLD - total;
+      freeShippingTextEl.innerHTML = `Faltam <strong>${formatBRL(remaining)}</strong> para você ganhar <strong>Frete Grátis</strong>`;
+    } else {
+      freeShippingTextEl.innerHTML = `✓ Parabéns! Você desbloqueou <strong>Frete Grátis</strong> neste pedido.`;
+    }
+  }
 
   if (cart.length === 0) {
     cartItemsContainer.innerHTML = `<p class="empty-cart">Sua sacola está vazia.</p>`;
-    cartTotalEl.textContent = "R$ 0,00";
     return;
   }
 
-  cartItemsContainer.innerHTML = cart.map((item, idx) => `
-    <div class="cart-item">
-      <div class="cart-item-info">
-        <strong>${item.name}</strong>
-        <span>${item.colorName} · Tam. ${item.size} — ${formatBRL(item.price)}</span>
+  cartItemsContainer.innerHTML = cart.map((item, idx) => {
+    const qty = item.qty || 1;
+    return `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <strong>${item.name}</strong>
+          <span>${item.colorName} · Tam. ${item.size} — ${formatBRL(item.price * qty)}</span>
+        </div>
+        <div class="cart-item-actions">
+          <div class="qty-controls">
+            <button type="button" class="qty-btn" onclick="changeCartQty(${idx}, -1)" aria-label="Diminuir quantidade">−</button>
+            <span class="qty-val">${qty}</span>
+            <button type="button" class="qty-btn" onclick="changeCartQty(${idx}, 1)" aria-label="Aumentar quantidade">+</button>
+          </div>
+          <button type="button" class="remove-item" onclick="removeFromCart(${idx})">Remover</button>
+        </div>
       </div>
-      <button class="remove-item" onclick="removeFromCart(${idx})">Remover</button>
-    </div>
-  `).join("");
-
-  const total = cart.reduce((acc, item) => acc + item.price, 0);
-  cartTotalEl.textContent = formatBRL(total);
+    `;
+  }).join("");
 }
 
 function openCart() {
@@ -414,18 +571,32 @@ cartOverlay.addEventListener("click", closeCart);
 
 document.getElementById("checkout-btn").addEventListener("click", () => {
   if (cart.length === 0) {
-    alert("Selecione uma peça antes de finalizar.");
+    showToast("Selecione pelo menos uma peça antes de finalizar.");
     return;
   }
-  alert("Pedido confirmado. Disciplina move resultados.");
+
+  const total = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
+  const hasFreeShipping = total >= FREE_SHIPPING_THRESHOLD;
+  const lines = cart.map(item => `• ${item.qty || 1}x ${item.name} (${item.colorName} | Tam. ${item.size}) — ${formatBRL(item.price * (item.qty || 1))}`);
+  const summaryMsg = [
+    "Olá! Quero finalizar meu pedido na LYNX:",
+    ...lines,
+    `Subtotal: ${formatBRL(total)}`,
+    hasFreeShipping ? "Frete: GRÁTIS" : "Frete: A calcular"
+  ].join("\n");
+
+  showToast("Pedido gerado! Abrindo atendimento...");
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(summaryMsg)}`, "_blank", "noopener,noreferrer");
+
   cart = [];
+  saveCart();
   updateCartUI();
   closeCart();
 });
 
 document.getElementById("newsletter-form").addEventListener("submit", (e) => {
   e.preventDefault();
-  alert("E-mail confirmado na Lista Privada LYNX.");
+  showToast("E-mail confirmado na Lista Privada LYNX.");
   e.target.reset();
 });
 
@@ -448,6 +619,23 @@ const sectionObserver = new IntersectionObserver(
 );
 
 trackedSections.forEach((sec) => sectionObserver.observe(sec));
+
+// Scroll Reveal Micro-Animations
+const revealTargets = document.querySelectorAll(".section-head, .concept-header, .pillar-card, .concept-feature-media, .engineering-visual, .engineering-content");
+revealTargets.forEach(el => el.classList.add("reveal"));
+
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+      }
+    });
+  },
+  { threshold: 0.12 }
+);
+
+revealTargets.forEach(el => revealObserver.observe(el));
 
 // Feedbacks de Clientes (3 colunas, abre de 2 em 2 linhas com efeito Fade)
 const feedbacksData = [
@@ -479,7 +667,7 @@ const feedbacksData = [
     name: "Gabriel",
     stars: 4,
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80",
-    comment: "Acabamento impecável na gola e na manga. Mesmo depois de várias lavagens a peça continua com aspecto de nova."
+    comment: "O Short 2 em 1 Stealth é perfeito para corrida e treino de perna, o bolso interno segura o celular sem balançar."
   },
   {
     name: "Beatriz",
@@ -551,7 +739,7 @@ const feedbacksData = [
     name: "Diego",
     stars: 5,
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=160&q=80",
-    comment: "Comprei uma camiseta para testar e na semana seguinte já garanti as outras duas cores."
+    comment: "Comprei uma camiseta e o short 2 em 1 para testar e na semana seguinte já garanti as outras cores."
   },
   {
     name: "Isabela",
@@ -656,3 +844,4 @@ systemDarkMatcher.addEventListener("change", () => {
 
 applyThemeMode(currentThemeMode);
 renderProducts();
+updateCartUI();
