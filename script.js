@@ -125,10 +125,6 @@ function formatBRL(value) {
 }
 
 function getAngleImageUrl(product, colorKey, angleIndex) {
-  if (angleIndex === 0) {
-    const colorObj = product.colors.find(c => c.key === colorKey) || product.colors[0];
-    return colorObj.image;
-  }
   return `assets/angles/${product.slug}-${colorKey}-${angleIndex}.jpg`;
 }
 
