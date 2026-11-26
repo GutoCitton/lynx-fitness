@@ -47,7 +47,7 @@ const products = [
     installments: "em até 3x de R$ 89,96 sem juros",
     sizes: ["PP", "P", "M", "G"],
     selectedSize: "P",
-    selectedColor: "verde",
+    selectedColor: "preto",
     specs: [
       { label: "Composição", value: "86% Poliamida · 14% Elastano Lycra" },
       { label: "Gramatura", value: "310g/m² · Zero Transparência" },
@@ -72,7 +72,7 @@ const products = [
     installments: "em até 3x de R$ 76,63 sem juros",
     sizes: ["PP", "P", "M", "G"],
     selectedSize: "M",
-    selectedColor: "marinho",
+    selectedColor: "preto",
     specs: [
       { label: "Composição", value: "88% Poliamida · 12% Elastano" },
       { label: "Gramatura", value: "290g/m² · Toque Gelado" },
