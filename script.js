@@ -429,9 +429,9 @@ document.getElementById("newsletter-form").addEventListener("submit", (e) => {
   e.target.reset();
 });
 
-// Destacar link ativo no menu ao rolar entre Coleção, Conceito e Engenharia
+// Destacar link ativo no menu ao rolar entre Coleção, Conceito, Engenharia e Feedbacks
 const navLinks = document.querySelectorAll(".nav a");
-const trackedSections = document.querySelectorAll("#colecao, #conceito, #engenharia");
+const trackedSections = document.querySelectorAll("#colecao, #conceito, #engenharia, #feedbacks");
 
 const sectionObserver = new IntersectionObserver(
   (entries) => {
@@ -448,6 +448,178 @@ const sectionObserver = new IntersectionObserver(
 );
 
 trackedSections.forEach((sec) => sectionObserver.observe(sec));
+
+// Feedbacks de Clientes (3 colunas, abre de 2 em 2 linhas com efeito Fade)
+const feedbacksData = [
+  {
+    name: "Lucas",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80",
+    comment: "A Camiseta Raglan não retém suor mesmo nos treinos mais pesados. O corte no ombro veste perfeitamente."
+  },
+  {
+    name: "Mariana",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=160&q=80",
+    comment: "O Conjunto Sculpt de top e legging tem zero transparência real no agachamento e modela sem apertar demais."
+  },
+  {
+    name: "Rafael",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80",
+    comment: "Minimalismo no nível certo. Comprei a camiseta no Preto Fosco e no Verde Escuro, o tecido é gelado e muito leve."
+  },
+  {
+    name: "Camila",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=160&q=80",
+    comment: "O short do Conjunto Aero não sobe na coxa durante a corrida. Melhor roupa de treino que já comprei."
+  },
+  {
+    name: "Gabriel",
+    stars: 4,
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80",
+    comment: "Acabamento impecável na gola e na manga. Mesmo depois de várias lavagens a peça continua com aspecto de nova."
+  },
+  {
+    name: "Beatriz",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=160&q=80",
+    comment: "O tom Azul Marinho pessoalmente é lindo e super elegante. O top dá muita segurança para treinar."
+  },
+  {
+    name: "Thiago",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=160&q=80",
+    comment: "A assinatura discreta na manga e a logo prateada no peito passam uma presença absurda na academia."
+  },
+  {
+    name: "Fernanda",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=160&q=80",
+    comment: "Cós alto que não enrola no abdômen e tecido super macio. Já quero o conjunto de legging em todas as cores."
+  },
+  {
+    name: "Matheus",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=160&q=80",
+    comment: "Caimento atlético de verdade, valoriza os ombros e não fica larga na cintura. Qualidade acima da média."
+  },
+  {
+    name: "Juliana",
+    stars: 4,
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80",
+    comment: "Uso o conjunto de short e top tanto para musculação quanto para o crossfit. Sustentação nota dez."
+  },
+  {
+    name: "Rodrigo",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=160&q=80",
+    comment: "Finalmente uma marca fitness sem estampas exageradas. Só corte preciso, conforto térmico e foco no treino."
+  },
+  {
+    name: "Larissa",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=160&q=80",
+    comment: "A compressão da legging LYNX ajuda muito na estabilidade das pernas no treino de inferiores."
+  },
+  {
+    name: "Bruno",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=160&q=80",
+    comment: "Tecido Dry-Tech seca muito rápido e não deixa cheiro. Vale cada centavo pelo conforto."
+  },
+  {
+    name: "Amanda",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=160&q=80",
+    comment: "O Conjunto Sculpt Verde Escuro virou meu uniforme favorito de treino. Caimento perfeito no corpo."
+  },
+  {
+    name: "Felipe",
+    stars: 4,
+    avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=160&q=80",
+    comment: "Costuras planas que realmente não incomodam nem em treinos longos de corrida de rua."
+  },
+  {
+    name: "Carolina",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=160&q=80",
+    comment: "A entrega foi super rápida e a qualidade da malha surpreendeu. O toque fosco é muito sofisticado."
+  },
+  {
+    name: "Diego",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=160&q=80",
+    comment: "Comprei uma camiseta para testar e na semana seguinte já garanti as outras duas cores."
+  },
+  {
+    name: "Isabela",
+    stars: 5,
+    avatar: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=160&q=80",
+    comment: "Forro duplo no top que traz segurança total e design nadador nas costas que deixa as escápulas livres."
+  }
+];
+
+const FEEDBACK_COLS = 3;
+let visibleFeedbackRows = 2;
+
+const feedbacksGridEl = document.getElementById("feedbacks-grid");
+const feedbackPeekWrapperEl = document.getElementById("feedback-peek-wrapper");
+const feedbackPeekGridEl = document.getElementById("feedback-peek-grid");
+const feedbackMoreBtnEl = document.getElementById("feedback-more-btn");
+
+function renderStarsHTML(count) {
+  let html = "";
+  for (let i = 1; i <= 5; i++) {
+    if (i <= count) {
+      html += `<span>★</span>`;
+    } else {
+      html += `<span class="star-empty">★</span>`;
+    }
+  }
+  return html;
+}
+
+function createFeedbackCardHTML(item) {
+  return `
+    <article class="feedback-card">
+      <div class="feedback-top">
+        <div class="feedback-user">
+          <img src="${item.avatar}" alt="Foto de ${item.name}" class="feedback-avatar" loading="lazy" />
+          <strong class="feedback-name">${item.name}</strong>
+        </div>
+        <div class="feedback-stars" aria-label="${item.stars} de 5 estrelas">
+          ${renderStarsHTML(item.stars)}
+        </div>
+      </div>
+      <p class="feedback-quote">"${item.comment}"</p>
+    </article>
+  `;
+}
+
+function renderFeedbacks() {
+  const visibleCount = visibleFeedbackRows * FEEDBACK_COLS;
+  const visibleItems = feedbacksData.slice(0, visibleCount);
+  const peekItems = feedbacksData.slice(visibleCount, visibleCount + FEEDBACK_COLS);
+
+  feedbacksGridEl.innerHTML = visibleItems.map(createFeedbackCardHTML).join("");
+
+  if (peekItems.length > 0) {
+    feedbackPeekGridEl.innerHTML = peekItems.map(createFeedbackCardHTML).join("");
+    feedbackPeekWrapperEl.classList.remove("hidden");
+  } else {
+    feedbackPeekGridEl.innerHTML = "";
+    feedbackPeekWrapperEl.classList.add("hidden");
+  }
+}
+
+feedbackMoreBtnEl.addEventListener("click", () => {
+  visibleFeedbackRows += 2;
+  renderFeedbacks();
+});
+
+renderFeedbacks();
 
 // Controle de Tema (Claro / Escuro / Sistema)
 const themeButtons = document.querySelectorAll(".theme-btn");

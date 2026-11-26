@@ -24,6 +24,7 @@
         <a href="#colecao">Coleção</a>
         <a href="#conceito">Conceito</a>
         <a href="#engenharia">Engenharia</a>
+        <a href="#feedbacks">Feedbacks</a>
       </nav>
 
       <div class="header-actions">
@@ -216,6 +217,36 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 4: Feedbacks de Clientes (3 Colunas, 2 Linhas + Fade Expansível) -->
+  <section id="feedbacks" class="feedbacks-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">03 // COMUNIDADE LYNX</span>
+          <h2>Quem treina com a marca.</h2>
+        </div>
+        <span class="feedback-summary">4.9 ★ · Avaliações Verificadas</span>
+      </div>
+
+      <!-- Linhas Visíveis (inicia com 2 linhas de 3 colunas = 6 feedbacks) -->
+      <div class="feedbacks-grid" id="feedbacks-grid"></div>
+
+      <!-- Linha seguinte com efeito Fade + Hover "Mais feedbacks ↓" -->
+      <div class="feedback-peek-wrapper" id="feedback-peek-wrapper">
+        <div class="feedbacks-grid feedback-peek-grid" id="feedback-peek-grid" aria-hidden="true"></div>
+        <button type="button" class="feedback-fade-trigger" id="feedback-more-btn" aria-label="Ver mais feedbacks">
+          <span class="feedback-more-pill">
+            <span>Mais feedbacks</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </span>
+        </button>
       </div>
     </div>
   </section>
