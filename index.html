@@ -211,6 +211,73 @@
     </div>
   </footer>
 
+  <!-- Modal de Detalhes do Produto & Visão 360° (8 Angulações) -->
+  <div class="modal-overlay" id="product-modal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="modal-close" aria-label="Fechar detalhes">&times;</button>
+
+      <div class="modal-grid">
+        <!-- Coluna da Foto Ampliada com Setas Laterais (8 Ângulos) -->
+        <div class="modal-viewer">
+          <div class="modal-stage">
+            <button type="button" class="angle-arrow angle-prev" id="angle-prev" aria-label="Girar para a esquerda">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+
+            <img id="modal-img" src="" alt="" class="modal-main-img" />
+
+            <button type="button" class="angle-arrow angle-next" id="angle-next" aria-label="Girar para a direita">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <div class="angle-hud">
+              <span class="angle-badge" id="angle-label">1/8 · 0° FRENTE</span>
+              <div class="angle-dots" id="angle-dots"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna de Detalhes Técnicos do Produto -->
+        <div class="modal-details">
+          <span class="kicker" id="modal-cat">CATEGORIA</span>
+          <h2 id="modal-title">Nome do Produto</h2>
+          <div class="modal-price-row">
+            <strong id="modal-price">R$ 0,00</strong>
+            <span id="modal-installments">em até 3x sem juros</span>
+          </div>
+
+          <p class="modal-desc" id="modal-desc"></p>
+
+          <div class="modal-specs" id="modal-specs"></div>
+
+          <div class="modal-option-block">
+            <div class="modal-option-head">
+              <span>COR</span>
+              <strong id="modal-color-name">Preto Fosco</strong>
+            </div>
+            <div class="color-swatches" id="modal-colors"></div>
+          </div>
+
+          <div class="modal-option-block">
+            <div class="modal-option-head">
+              <span>TAMANHO</span>
+              <strong id="modal-size-name">M</strong>
+            </div>
+            <div class="size-group" id="modal-sizes"></div>
+          </div>
+
+          <button type="button" class="btn-solid btn-full modal-buy-btn" id="modal-add-btn">
+            Adicionar à Sacola
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Sacola Lateral Clean -->
   <div class="cart-overlay" id="cart-overlay"></div>
   <aside class="cart-drawer" id="cart-drawer">

@@ -328,6 +328,31 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   overflow: hidden;
   margin-bottom: 14px;
   border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.product-media::after {
+  content: "360° · DETALHES";
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(5, 5, 6, 0.82);
+  border: 1px solid var(--line-hover);
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  padding: 5px 10px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.product-card:hover .product-media::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .product-media img {
@@ -756,6 +781,263 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   color: var(--muted);
 }
 
+/* Modal Product Details & 8-Angle 360 Viewer */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 3, 4, 0.86);
+  backdrop-filter: blur(14px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-dialog {
+  position: relative;
+  width: min(980px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line-hover);
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.open .modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 10;
+  background: rgba(5, 5, 6, 0.75);
+  border: 1px solid var(--line);
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  font-size: 1.35rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.modal-close:hover {
+  border-color: var(--text);
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+}
+
+.modal-viewer {
+  background: #08090b;
+  border-right: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.modal-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.modal-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: opacity 0.16s ease, transform 0.22s ease;
+}
+
+.angle-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  background: rgba(5, 5, 6, 0.82);
+  border: 1px solid var(--line-hover);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.angle-arrow:hover {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.angle-prev {
+  left: 16px;
+}
+
+.angle-next {
+  right: 16px;
+}
+
+.angle-hud {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.angle-badge {
+  background: rgba(5, 5, 6, 0.85);
+  border: 1px solid var(--line);
+  padding: 5px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.angle-dots {
+  display: flex;
+  gap: 7px;
+  pointer-events: auto;
+}
+
+.angle-dot {
+  width: 22px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.angle-dot.active,
+.angle-dot:hover {
+  background: var(--text);
+}
+
+.modal-details {
+  padding: 36px 34px;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-details h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.modal-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-price-row strong {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.modal-price-row span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.modal-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.modal-specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+
+.modal-spec-item span {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.modal-spec-item strong {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.modal-option-block {
+  margin-bottom: 18px;
+}
+
+.modal-option-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.modal-option-head strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.modal-buy-btn {
+  margin-top: auto;
+}
+
 /* Cart Drawer */
 .cart-overlay {
   position: fixed;
@@ -879,7 +1161,8 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   .hero-grid,
   .concept-showcase,
   .engineering-grid,
-  .product-gallery {
+  .product-gallery,
+  .modal-grid {
     grid-template-columns: 1fr;
     gap: 28px;
   }
