@@ -19,6 +19,27 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Faixa Superior de Benefícios (Top Announcement Bar) -->
+  <div class="announcement-bar" role="region" aria-label="Benefícios e cupom">
+    <div class="container announcement-inner">
+      <p class="announcement-text">
+        <span>FRETE GRÁTIS ACIMA DE R$ 299</span>
+        <span class="ann-dot">·</span>
+        <span>1ª TROCA GRÁTIS EM 30 DIAS</span>
+        <span class="ann-dot">·</span>
+        <span>10% OFF NA 1ª COMPRA COM O CUPOM:</span>
+      </p>
+      <button type="button" class="coupon-copy-btn" id="copy-coupon-btn" title="Clique para copiar o cupom LYNX10">
+        <strong>LYNX10</strong>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span id="copy-coupon-label">Copiar</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Header Minimalista -->
   <header class="header">
     <div class="container nav-container">
@@ -32,6 +53,7 @@
         <a href="#conceito">Conceito</a>
         <a href="#engenharia">Engenharia</a>
         <a href="#feedbacks">Feedbacks</a>
+        <a href="#faq">FAQ</a>
       </nav>
 
       <div class="header-actions">
@@ -166,6 +188,33 @@
         <div class="engineering-visual">
           <div class="engineering-img-frame">
             <img src="assets/lynx-detail-tag.jpg" alt="Macro da etiqueta tecida e trama Dry-Tech LYNX" />
+
+            <!-- Pontos Interativos (Hotspots) -->
+            <div class="hotspot" style="top: 24%; left: 26%;" tabindex="0" aria-label="Detalhe Costura Plana">
+              <span class="hotspot-dot">+</span>
+              <div class="hotspot-card">
+                <strong>Costura Plana Anti-Atrito</strong>
+                <p>Acabamento flatlock reforçado de baixo perfil que acompanha a extensão muscular sem marcar ou irritar a pele.</p>
+              </div>
+            </div>
+
+            <div class="hotspot" style="top: 52%; left: 36%;" tabindex="0" aria-label="Detalhe Logo e Etiqueta">
+              <span class="hotspot-dot">+</span>
+              <div class="hotspot-card">
+                <strong>Etiqueta & Micro-Relevo</strong>
+                <p>Tecelagem de alta densidade com toque macio e assinatura LYNX em polímero prateado que não racha nem desbota.</p>
+              </div>
+            </div>
+
+            <div class="hotspot" style="top: 72%; left: 68%;" tabindex="0" aria-label="Detalhe Trama Dry-Tech">
+              <span class="hotspot-dot">+</span>
+              <div class="hotspot-card">
+                <strong>Trama Dry-Tech 4-Way</strong>
+                <p>Microfibras de poliamida de alta gramatura com toque gelado, proteção UV 50+ e rápida dispersão térmica do suor.</p>
+              </div>
+            </div>
+
+            <span class="hotspot-hint">Passe o mouse nos pontos (+) para inspecionar</span>
           </div>
           <div class="engineering-metrics">
             <div class="metric-box">
@@ -254,6 +303,61 @@
             </svg>
           </span>
         </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção 5: FAQ (Perguntas Frequentes em Acordeão Minimalista) -->
+  <section id="faq" class="faq-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">04 // DÚVIDAS FREQUENTES</span>
+          <h2>Perguntas & Respostas.</h2>
+        </div>
+        <span class="feedback-summary">Transparência total antes do seu treino</span>
+      </div>
+
+      <div class="faq-list" id="faq-list">
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>01 · As peças e leggings têm zero transparência no agachamento?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" hidden>
+            <p>Sim. Utilizamos malha de poliamida de alta densidade (290g/m² a 310g/m²) combinada com elastano de alta memória e forro duplo nos tops, garantindo cobertura 100% opaca mesmo sob máxima tensão em agachamentos e exercícios intensos.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>02 · Como funciona a 1ª troca grátis em até 30 dias?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" hidden>
+            <p>Caso o tamanho escolhido não fique com o caimento ideal, você tem até 30 dias corridos após o recebimento para solicitar a sua primeira troca sem nenhum custo de frete reverso. Basta acionar nosso suporte via WhatsApp.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>03 · Quais são os cuidados de lavagem para preservar a malha Dry-Tech?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" hidden>
+            <p>Recomendamos lavar em água fria com sabão neutro, sem uso de amaciantes ou alvejantes (que podem obstruir os microporos de respirabilidade Dry-Tech), e secar à sombra. O tecido seca rapidamente e não precisa ser passado a ferro.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            <span>04 · Qual o prazo de envio e como funciona o Frete Grátis?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" hidden>
+            <p>Todos os pedidos são despachados em até 24h úteis com código de rastreio. Compras a partir de R$ 299,00 (ou com o cupom de boas-vindas combinado acima desse valor) contam com Frete Grátis automático para todo o Brasil.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -377,17 +481,43 @@
           <div class="modal-option-block">
             <div class="modal-option-head">
               <span>TAMANHO: <strong id="modal-size-name">M</strong></span>
-              <button type="button" class="size-guide-trigger" id="size-guide-btn">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"></path>
-                  <path d="m14.5 12.5 2-2"></path>
-                  <path d="m11.5 9.5 2-2"></path>
-                  <path d="m8.5 6.5 2-2"></path>
-                </svg>
-                <span>Guia de Medidas</span>
-              </button>
+              <div class="size-tools-links">
+                <button type="button" class="size-guide-trigger" id="fit-calc-btn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 8v4l3 3"></path>
+                  </svg>
+                  <span>Descubra Seu Tamanho</span>
+                </button>
+                <button type="button" class="size-guide-trigger" id="size-guide-btn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"></path>
+                    <path d="m14.5 12.5 2-2"></path>
+                    <path d="m11.5 9.5 2-2"></path>
+                    <path d="m8.5 6.5 2-2"></path>
+                  </svg>
+                  <span>Guia de Medidas</span>
+                </button>
+              </div>
             </div>
             <div class="size-group" id="modal-sizes"></div>
+
+            <!-- Simulador Descubra Seu Tamanho Ideal -->
+            <div class="size-guide-panel fit-calc-panel" id="fit-calc-panel" hidden>
+              <p class="fit-calc-title">Informe sua altura e peso para calcular o caimento ideal:</p>
+              <div class="fit-calc-inputs">
+                <label class="fit-field">
+                  <span>Altura (cm)</span>
+                  <input type="number" id="fit-height" placeholder="Ex: 175" min="135" max="225" />
+                </label>
+                <label class="fit-field">
+                  <span>Peso (kg)</span>
+                  <input type="number" id="fit-weight" placeholder="Ex: 76" min="38" max="160" />
+                </label>
+                <button type="button" class="fit-calc-submit" id="fit-calc-submit">Calcular</button>
+              </div>
+              <p class="fit-calc-result" id="fit-calc-result" hidden></p>
+            </div>
 
             <!-- Tabela Guia de Medidas Expansível -->
             <div class="size-guide-panel" id="size-guide-panel" hidden>
@@ -439,8 +569,20 @@
       <p class="empty-cart">Sua sacola está vazia.</p>
     </div>
     <div class="cart-footer">
+      <!-- Campo de Cupom Funcional (LYNX10) -->
+      <div class="cart-coupon-box">
+        <div class="cart-coupon-form">
+          <input type="text" id="coupon-input" placeholder="Cupom (ex: LYNX10)" aria-label="Cupom de desconto" />
+          <button type="button" id="coupon-apply-btn">Aplicar</button>
+        </div>
+        <div class="cart-discount-row" id="cart-discount-row" hidden>
+          <span id="cart-discount-label">Cupom LYNX10 (-10%)</span>
+          <strong id="cart-discount-val">-R$ 0,00</strong>
+        </div>
+      </div>
+
       <div class="cart-total">
-        <span>Subtotal</span>
+        <span>Total</span>
         <strong id="cart-total">R$ 0,00</strong>
       </div>
       <button class="btn-solid btn-full checkout-wa-btn" id="checkout-btn">

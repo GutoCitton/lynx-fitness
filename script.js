@@ -175,6 +175,25 @@ const modalSizeNameEl = document.getElementById("modal-size-name");
 const modalAddBtn = document.getElementById("modal-add-btn");
 const sizeGuideBtn = document.getElementById("size-guide-btn");
 const sizeGuidePanel = document.getElementById("size-guide-panel");
+const fitCalcBtn = document.getElementById("fit-calc-btn");
+const fitCalcPanel = document.getElementById("fit-calc-panel");
+const fitHeightInput = document.getElementById("fit-height");
+const fitWeightInput = document.getElementById("fit-weight");
+const fitCalcSubmit = document.getElementById("fit-calc-submit");
+const fitCalcResult = document.getElementById("fit-calc-result");
+
+// Coupon DOM Elements
+const couponInputEl = document.getElementById("coupon-input");
+const couponApplyBtnEl = document.getElementById("coupon-apply-btn");
+const cartDiscountRowEl = document.getElementById("cart-discount-row");
+const cartDiscountValEl = document.getElementById("cart-discount-val");
+const copyCouponBtnEl = document.getElementById("copy-coupon-btn");
+const copyCouponLabelEl = document.getElementById("copy-coupon-label");
+
+let appliedCoupon = localStorage.getItem("lynx-coupon") || "";
+if (appliedCoupon && couponInputEl) {
+  couponInputEl.value = appliedCoupon;
+}
 
 function formatBRL(value) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -285,6 +304,12 @@ function openProductModal(productId) {
   activeModalAngle = 0;
   if (sizeGuidePanel) {
     sizeGuidePanel.hidden = true;
+  }
+  if (fitCalcPanel) {
+    fitCalcPanel.hidden = true;
+  }
+  if (fitCalcResult) {
+    fitCalcResult.hidden = true;
   }
   preloadProductAngles(product, product.selectedColor);
   renderModalContent();
@@ -416,7 +441,59 @@ if (modalStage) {
 
 if (sizeGuideBtn && sizeGuidePanel) {
   sizeGuideBtn.addEventListener("click", () => {
-    sizeGuidePanel.hidden = !sizeGuidePanel.hidden;
+    const willOpen = sizeGuidePanel.hidden;
+    sizeGuidePanel.hidden = !willOpen;
+    if (willOpen && fitCalcPanel) {
+      fitCalcPanel.hidden = true;
+    }
+  });
+}
+
+if (fitCalcBtn && fitCalcPanel) {
+  fitCalcBtn.addEventListener("click", () => {
+    const willOpen = fitCalcPanel.hidden;
+    fitCalcPanel.hidden = !willOpen;
+    if (willOpen && sizeGuidePanel) {
+      sizeGuidePanel.hidden = true;
+    }
+  });
+}
+
+if (fitCalcSubmit && fitHeightInput && fitWeightInput && fitCalcResult) {
+  fitCalcSubmit.addEventListener("click", () => {
+    const h = parseFloat(fitHeightInput.value);
+    const w = parseFloat(fitWeightInput.value);
+    if (!h || !w || h < 130 || h > 230 || w < 35 || w > 180) {
+      showToast("Informe uma altura (cm) e peso (kg) válidos.");
+      return;
+    }
+
+    const product = products.find(p => p.id === activeModalProductId) || products[0];
+    // Índice combinado de estrutura corporal
+    let rec = "M";
+    if (w < 54 || (w < 58 && h < 163)) {
+      rec = "PP";
+    } else if (w < 67 || (w < 71 && h < 170)) {
+      rec = "P";
+    } else if (w < 81 || (w < 84 && h < 180)) {
+      rec = "M";
+    } else if (w < 94) {
+      rec = "G";
+    } else {
+      rec = "GG";
+    }
+
+    // Garantir que o tamanho exista na grade do produto atual
+    if (!product.sizes.includes(rec)) {
+      if (rec === "PP" && product.sizes.includes("P")) rec = "P";
+      else if (rec === "GG" && product.sizes.includes("G")) rec = "G";
+      else rec = product.sizes[Math.floor(product.sizes.length / 2)];
+    }
+
+    selectSize(product.id, rec);
+    fitCalcResult.hidden = false;
+    fitCalcResult.innerHTML = `✓ Recomendamos o tamanho <strong>${rec}</strong> para você (${h} cm · ${w} kg) — selecionado automaticamente.`;
+    showToast(`Tamanho ${rec} recomendado e selecionado.`);
   });
 }
 
@@ -504,17 +581,29 @@ function updateCartUI() {
   const totalItems = cart.reduce((acc, item) => acc + (item.qty || 1), 0);
   cartCount.textContent = totalItems;
 
-  const total = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
-  cartTotalEl.textContent = formatBRL(total);
+  const subtotal = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
+  const discount = appliedCoupon === "LYNX10" ? subtotal * 0.10 : 0;
+  const finalTotal = Math.max(0, subtotal - discount);
+
+  cartTotalEl.textContent = formatBRL(finalTotal);
+
+  if (cartDiscountRowEl && cartDiscountValEl) {
+    if (appliedCoupon === "LYNX10" && subtotal > 0) {
+      cartDiscountRowEl.hidden = false;
+      cartDiscountValEl.textContent = `-${formatBRL(discount)}`;
+    } else {
+      cartDiscountRowEl.hidden = true;
+    }
+  }
 
   // Free shipping progress bar
   if (freeShippingTextEl && freeShippingFillEl) {
-    const pct = Math.min(100, Math.round((total / FREE_SHIPPING_THRESHOLD) * 100));
+    const pct = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
     freeShippingFillEl.style.width = `${pct}%`;
-    if (total === 0) {
+    if (subtotal === 0) {
       freeShippingTextEl.innerHTML = `Adicione itens para ganhar <strong>Frete Grátis</strong> acima de ${formatBRL(FREE_SHIPPING_THRESHOLD)}`;
-    } else if (total < FREE_SHIPPING_THRESHOLD) {
-      const remaining = FREE_SHIPPING_THRESHOLD - total;
+    } else if (subtotal < FREE_SHIPPING_THRESHOLD) {
+      const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
       freeShippingTextEl.innerHTML = `Faltam <strong>${formatBRL(remaining)}</strong> para você ganhar <strong>Frete Grátis</strong>`;
     } else {
       freeShippingTextEl.innerHTML = `✓ Parabéns! Você desbloqueou <strong>Frete Grátis</strong> neste pedido.`;
@@ -569,21 +658,98 @@ document.getElementById("open-cart").addEventListener("click", openCart);
 document.getElementById("close-cart").addEventListener("click", closeCart);
 cartOverlay.addEventListener("click", closeCart);
 
+if (couponApplyBtnEl && couponInputEl) {
+  couponApplyBtnEl.addEventListener("click", () => {
+    const code = couponInputEl.value.trim().toUpperCase();
+    if (code === "LYNX10") {
+      appliedCoupon = "LYNX10";
+      localStorage.setItem("lynx-coupon", "LYNX10");
+      updateCartUI();
+      showToast("Cupom LYNX10 (10% OFF) aplicado com sucesso!");
+    } else if (!code) {
+      appliedCoupon = "";
+      localStorage.removeItem("lynx-coupon");
+      updateCartUI();
+      showToast("Cupom removido.");
+    } else {
+      showToast("Cupom inválido. Use o código LYNX10.");
+    }
+  });
+}
+
+if (copyCouponBtnEl) {
+  copyCouponBtnEl.addEventListener("click", () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText("LYNX10").catch(() => {});
+    }
+    appliedCoupon = "LYNX10";
+    localStorage.setItem("lynx-coupon", "LYNX10");
+    if (couponInputEl) {
+      couponInputEl.value = "LYNX10";
+    }
+    updateCartUI();
+    if (copyCouponLabelEl) {
+      copyCouponLabelEl.textContent = "Copiado!";
+      setTimeout(() => {
+        copyCouponLabelEl.textContent = "Copiar";
+      }, 2200);
+    }
+    showToast("Cupom LYNX10 copiado e ativado na sua sacola!");
+  });
+}
+
+// Hotspots interativos na seção Engenharia
+document.querySelectorAll(".hotspot").forEach((spot) => {
+  spot.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isActive = spot.classList.contains("active");
+    document.querySelectorAll(".hotspot").forEach((s) => s.classList.remove("active"));
+    if (!isActive) {
+      spot.classList.add("active");
+    }
+  });
+});
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".hotspot").forEach((s) => s.classList.remove("active"));
+});
+
+// FAQ Acordeão Minimalista
+document.querySelectorAll(".faq-question").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const item = btn.closest(".faq-item");
+    const answer = item.querySelector(".faq-answer");
+    const isOpen = item.classList.contains("open");
+
+    item.classList.toggle("open", !isOpen);
+    btn.setAttribute("aria-expanded", String(!isOpen));
+    answer.hidden = isOpen;
+  });
+});
+
 document.getElementById("checkout-btn").addEventListener("click", () => {
   if (cart.length === 0) {
     showToast("Selecione pelo menos uma peça antes de finalizar.");
     return;
   }
 
-  const total = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
-  const hasFreeShipping = total >= FREE_SHIPPING_THRESHOLD;
+  const subtotal = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
+  const discount = appliedCoupon === "LYNX10" ? subtotal * 0.10 : 0;
+  const finalTotal = Math.max(0, subtotal - discount);
+  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
   const lines = cart.map(item => `• ${item.qty || 1}x ${item.name} (${item.colorName} | Tam. ${item.size}) — ${formatBRL(item.price * (item.qty || 1))}`);
-  const summaryMsg = [
+  const summaryLines = [
     "Olá! Quero finalizar meu pedido na LYNX:",
     ...lines,
-    `Subtotal: ${formatBRL(total)}`,
-    hasFreeShipping ? "Frete: GRÁTIS" : "Frete: A calcular"
-  ].join("\n");
+    `Subtotal: ${formatBRL(subtotal)}`
+  ];
+  if (discount > 0) {
+    summaryLines.push(`Cupom Aplicado (LYNX10 -10%): -${formatBRL(discount)}`);
+  }
+  summaryLines.push(`Total Final: ${formatBRL(finalTotal)}`);
+  summaryLines.push(hasFreeShipping ? "Frete: GRÁTIS" : "Frete: A calcular");
+
+  const summaryMsg = summaryLines.join("\n");
 
   showToast("Pedido gerado! Abrindo atendimento...");
   window.open(`https://www.google.com/search?q=${encodeURIComponent(summaryMsg)}`, "_blank", "noopener,noreferrer");
@@ -600,9 +766,9 @@ document.getElementById("newsletter-form").addEventListener("submit", (e) => {
   e.target.reset();
 });
 
-// Destacar link ativo no menu ao rolar entre Coleção, Conceito, Engenharia e Feedbacks
+// Destacar link ativo no menu ao rolar entre Coleção, Conceito, Engenharia, Feedbacks e FAQ
 const navLinks = document.querySelectorAll(".nav a");
-const trackedSections = document.querySelectorAll("#colecao, #conceito, #engenharia, #feedbacks");
+const trackedSections = document.querySelectorAll("#colecao, #conceito, #engenharia, #feedbacks, #faq");
 
 const sectionObserver = new IntersectionObserver(
   (entries) => {

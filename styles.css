@@ -101,6 +101,60 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   margin-bottom: 8px;
 }
 
+/* Top Announcement Bar */
+.announcement-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 7px 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.announcement-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.announcement-text {
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ann-dot {
+  opacity: 0.45;
+}
+
+.coupon-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 3px 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.coupon-copy-btn:hover {
+  opacity: 0.86;
+  transform: translateY(-1px);
+}
+
 /* Header */
 .header {
   position: sticky;
@@ -705,9 +759,10 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
 }
 
 .engineering-img-frame {
+  position: relative;
   border: 1px solid var(--line);
   background: var(--surface);
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 14px;
 }
 
@@ -716,6 +771,108 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   max-height: 310px;
   object-fit: cover;
   display: block;
+}
+
+/* Interactive Hotspots in Engineering Section */
+.hotspot {
+  position: absolute;
+  z-index: 12;
+  transform: translate(-50%, -50%);
+  outline: none;
+}
+
+.hotspot-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(5, 5, 6, 0.88);
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
+  animation: hotspotPulse 2.2s infinite;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+@keyframes hotspotPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.hotspot:hover .hotspot-dot,
+.hotspot:focus-within .hotspot-dot,
+.hotspot.active .hotspot-dot {
+  background: #ffffff;
+  color: #050506;
+  transform: scale(1.12) rotate(45deg);
+}
+
+.hotspot-card {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: 230px;
+  background: var(--surface);
+  border: 1px solid var(--line-hover);
+  padding: 12px 14px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hotspot:hover .hotspot-card,
+.hotspot:focus-within .hotspot-card,
+.hotspot.active .hotspot-card {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hotspot-card strong {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.hotspot-card p {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.hotspot-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  background: rgba(5, 5, 6, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #d4d7de;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  pointer-events: none;
 }
 
 .engineering-metrics {
@@ -931,6 +1088,69 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
 .feedback-fade-trigger:focus-visible .feedback-more-pill {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* 5. FAQ Section (Minimalist Accordion) */
+.faq-section {
+  padding: 40px 0 56px;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.faq-question:hover {
+  color: var(--muted);
+}
+
+.faq-icon {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--muted);
+  transition: transform 0.24s ease, color 0.2s ease;
+}
+
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+  color: var(--text);
+}
+
+.faq-answer {
+  padding-bottom: 20px;
+  max-width: 780px;
+}
+
+.faq-answer p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.65;
 }
 
 /* Footer */
@@ -1350,6 +1570,134 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
 
 .modal-buy-btn {
   margin-top: auto;
+}
+
+.size-tools-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.fit-calc-title {
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.fit-calc-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 90px;
+}
+
+.fit-field span {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fit-field input {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 7px 9px;
+  font-size: 0.78rem;
+  outline: none;
+}
+
+.fit-field input:focus {
+  border-color: var(--text);
+}
+
+.fit-calc-submit {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 8px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fit-calc-result {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+/* Cart Coupon Box */
+.cart-coupon-box {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cart-coupon-form {
+  display: flex;
+  gap: 8px;
+}
+
+.cart-coupon-form input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 9px 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.cart-coupon-form input:focus {
+  border-color: var(--text);
+}
+
+.cart-coupon-form button {
+  background: var(--bg);
+  border: 1px solid var(--line-hover);
+  color: var(--text);
+  padding: 9px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cart-coupon-form button:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.cart-discount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.74rem;
+  color: var(--text);
 }
 
 .size-guide-trigger {
