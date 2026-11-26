@@ -182,18 +182,21 @@ const fitWeightInput = document.getElementById("fit-weight");
 const fitCalcSubmit = document.getElementById("fit-calc-submit");
 const fitCalcResult = document.getElementById("fit-calc-result");
 
-// Coupon DOM Elements
+// Coupon DOM Elements & Non-Cumulative Coupon Table (LYNX10 = 10%, hidden LYNX20 = 20%)
+const VALID_COUPONS = {
+  LYNX10: { code: "LYNX10", percent: 10 },
+  LYNX20: { code: "LYNX20", percent: 20 }
+};
+
 const couponInputEl = document.getElementById("coupon-input");
 const couponApplyBtnEl = document.getElementById("coupon-apply-btn");
 const cartDiscountRowEl = document.getElementById("cart-discount-row");
+const cartDiscountLabelEl = document.getElementById("cart-discount-label");
 const cartDiscountValEl = document.getElementById("cart-discount-val");
 const copyCouponBtnEl = document.getElementById("copy-coupon-btn");
 const copyCouponLabelEl = document.getElementById("copy-coupon-label");
 
-let appliedCoupon = localStorage.getItem("lynx-coupon") || "";
-if (appliedCoupon && couponInputEl) {
-  couponInputEl.value = appliedCoupon;
-}
+let appliedCoupon = "";
 
 function formatBRL(value) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -582,14 +585,22 @@ function updateCartUI() {
   cartCount.textContent = totalItems;
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
-  const discount = appliedCoupon === "LYNX10" ? subtotal * 0.10 : 0;
+  const couponObj = VALID_COUPONS[appliedCoupon] || null;
+  const discount = couponObj ? subtotal * (couponObj.percent / 100) : 0;
   const finalTotal = Math.max(0, subtotal - discount);
 
   cartTotalEl.textContent = formatBRL(finalTotal);
 
+  if (couponApplyBtnEl) {
+    couponApplyBtnEl.textContent = couponObj ? "Trocar Cupom" : "Aplicar";
+  }
+
   if (cartDiscountRowEl && cartDiscountValEl) {
-    if (appliedCoupon === "LYNX10" && subtotal > 0) {
+    if (couponObj && subtotal > 0) {
       cartDiscountRowEl.hidden = false;
+      if (cartDiscountLabelEl) {
+        cartDiscountLabelEl.textContent = `Cupom ${couponObj.code} (-${couponObj.percent}%)`;
+      }
       cartDiscountValEl.textContent = `-${formatBRL(discount)}`;
     } else {
       cartDiscountRowEl.hidden = true;
@@ -661,18 +672,40 @@ cartOverlay.addEventListener("click", closeCart);
 if (couponApplyBtnEl && couponInputEl) {
   couponApplyBtnEl.addEventListener("click", () => {
     const code = couponInputEl.value.trim().toUpperCase();
-    if (code === "LYNX10") {
-      appliedCoupon = "LYNX10";
-      localStorage.setItem("lynx-coupon", "LYNX10");
-      updateCartUI();
-      showToast("Cupom LYNX10 (10% OFF) aplicado com sucesso!");
-    } else if (!code) {
+
+    // Se já há um cupom ativo e o usuário clicou em "Trocar Cupom":
+    if (appliedCoupon) {
+      // Se ele já digitou outro cupom válido diferente no campo, substitui diretamente (não cumulativo)
+      if (code && code !== appliedCoupon && VALID_COUPONS[code]) {
+        appliedCoupon = code;
+        couponInputEl.value = code;
+        updateCartUI();
+        showToast(`Cupom trocado para ${code} (${VALID_COUPONS[code].percent}% OFF)!`);
+        return;
+      }
+      // Caso contrário, limpa o cupom atual para permitir digitar o novo cupom
       appliedCoupon = "";
-      localStorage.removeItem("lynx-coupon");
+      couponInputEl.value = "";
       updateCartUI();
-      showToast("Cupom removido.");
+      couponInputEl.focus();
+      showToast("Digite o novo cupom e clique em Aplicar.");
+      return;
+    }
+
+    // Nenhum cupom ativo: aplicar o cupom digitado
+    if (!code) {
+      showToast("Digite um cupom antes de aplicar.");
+      return;
+    }
+
+    const found = VALID_COUPONS[code];
+    if (found) {
+      appliedCoupon = found.code;
+      couponInputEl.value = found.code;
+      updateCartUI();
+      showToast(`Cupom ${found.code} (${found.percent}% OFF) aplicado com sucesso!`);
     } else {
-      showToast("Cupom inválido. Use o código LYNX10.");
+      showToast("Cupom inválido ou expirado.");
     }
   });
 }
@@ -682,19 +715,13 @@ if (copyCouponBtnEl) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText("LYNX10").catch(() => {});
     }
-    appliedCoupon = "LYNX10";
-    localStorage.setItem("lynx-coupon", "LYNX10");
-    if (couponInputEl) {
-      couponInputEl.value = "LYNX10";
-    }
-    updateCartUI();
     if (copyCouponLabelEl) {
       copyCouponLabelEl.textContent = "Copiado!";
       setTimeout(() => {
         copyCouponLabelEl.textContent = "Copiar";
       }, 2200);
     }
-    showToast("Cupom LYNX10 copiado e ativado na sua sacola!");
+    showToast("Cupom LYNX10 copiado! Cole na sacola para aplicar.");
   });
 }
 
@@ -734,7 +761,8 @@ document.getElementById("checkout-btn").addEventListener("click", () => {
   }
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
-  const discount = appliedCoupon === "LYNX10" ? subtotal * 0.10 : 0;
+  const couponObj = VALID_COUPONS[appliedCoupon] || null;
+  const discount = couponObj ? subtotal * (couponObj.percent / 100) : 0;
   const finalTotal = Math.max(0, subtotal - discount);
   const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
   const lines = cart.map(item => `• ${item.qty || 1}x ${item.name} (${item.colorName} | Tam. ${item.size}) — ${formatBRL(item.price * (item.qty || 1))}`);
@@ -743,8 +771,8 @@ document.getElementById("checkout-btn").addEventListener("click", () => {
     ...lines,
     `Subtotal: ${formatBRL(subtotal)}`
   ];
-  if (discount > 0) {
-    summaryLines.push(`Cupom Aplicado (LYNX10 -10%): -${formatBRL(discount)}`);
+  if (couponObj && discount > 0) {
+    summaryLines.push(`Cupom Aplicado (${couponObj.code} -${couponObj.percent}%): -${formatBRL(discount)}`);
   }
   summaryLines.push(`Total Final: ${formatBRL(finalTotal)}`);
   summaryLines.push(hasFreeShipping ? "Frete: GRÁTIS" : "Frete: A calcular");
