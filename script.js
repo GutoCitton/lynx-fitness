@@ -449,4 +449,38 @@ const sectionObserver = new IntersectionObserver(
 
 trackedSections.forEach((sec) => sectionObserver.observe(sec));
 
+// Controle de Tema (Claro / Escuro / Sistema)
+const themeButtons = document.querySelectorAll(".theme-btn");
+const systemDarkMatcher = window.matchMedia("(prefers-color-scheme: dark)");
+let currentThemeMode = localStorage.getItem("lynx-theme-mode") || "system";
+
+function applyThemeMode(mode) {
+  currentThemeMode = mode;
+  localStorage.setItem("lynx-theme-mode", mode);
+
+  const resolvedTheme =
+    mode === "system"
+      ? (systemDarkMatcher.matches ? "dark" : "light")
+      : mode;
+
+  document.documentElement.setAttribute("data-theme", resolvedTheme);
+
+  themeButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.themeMode === mode);
+  });
+}
+
+themeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    applyThemeMode(btn.dataset.themeMode);
+  });
+});
+
+systemDarkMatcher.addEventListener("change", () => {
+  if (currentThemeMode === "system") {
+    applyThemeMode("system");
+  }
+});
+
+applyThemeMode(currentThemeMode);
 renderProducts();
