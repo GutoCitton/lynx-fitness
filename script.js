@@ -789,13 +789,14 @@ document.getElementById("checkout-btn").addEventListener("click", () => {
   ];
 
   if (currentMember) {
+    const formattedAddress = formatMemberAddress(currentMember);
     summaryLines.push(
       ``,
       `*DADOS DO CLIENTE (LYNX CLUB):*`,
       `• Nome: *${currentMember.name}*`,
       `• WhatsApp: ${currentMember.phone}`,
       `• CEP: *${currentMember.cep}*`,
-      `• Endereço: ${currentMember.address}`
+      `• Endereço: ${formattedAddress}`
     );
   }
 
@@ -1116,8 +1117,24 @@ const memberOrdersListEl = document.getElementById("member-orders-list");
 
 const profPhoneEl = document.getElementById("prof-phone");
 const profCepEl = document.getElementById("prof-cep");
-const profAddressEl = document.getElementById("prof-address");
+const profStreetEl = document.getElementById("prof-street");
+const profNumberEl = document.getElementById("prof-number");
+const profCompEl = document.getElementById("prof-comp");
+const profDistrictEl = document.getElementById("prof-district");
+const profCityEl = document.getElementById("prof-city");
 const profSizeEl = document.getElementById("prof-size");
+
+function formatMemberAddress(member) {
+  if (!member) return "";
+  if (member.street) {
+    const numPart = member.number ? `, ${member.number}` : "";
+    const compPart = member.complement ? ` (${member.complement})` : "";
+    const distPart = member.district ? ` — ${member.district}` : "";
+    const cityPart = member.city ? `, ${member.city}` : "";
+    return `${member.street}${numPart}${compPart}${distPart}${cityPart}`;
+  }
+  return member.address || "";
+}
 
 let currentMember = null;
 
@@ -1256,7 +1273,11 @@ function updateAccountUI() {
 
   if (profPhoneEl) profPhoneEl.value = currentMember.phone || "";
   if (profCepEl) profCepEl.value = currentMember.cep || "";
-  if (profAddressEl) profAddressEl.value = currentMember.address || "";
+  if (profStreetEl) profStreetEl.value = currentMember.street || currentMember.address || "";
+  if (profNumberEl) profNumberEl.value = currentMember.number || "";
+  if (profCompEl) profCompEl.value = currentMember.complement || "";
+  if (profDistrictEl) profDistrictEl.value = currentMember.district || "";
+  if (profCityEl) profCityEl.value = currentMember.city || "";
   if (profSizeEl) profSizeEl.value = currentMember.preferredSize || "M";
 
   const orders = Array.isArray(currentMember.orders) ? currentMember.orders : [];
@@ -1323,7 +1344,11 @@ if (registerForm) {
     const email = document.getElementById("reg-email").value.trim().toLowerCase();
     const phone = document.getElementById("reg-phone").value.trim();
     const cep = document.getElementById("reg-cep").value.trim();
-    const address = document.getElementById("reg-address").value.trim();
+    const street = document.getElementById("reg-street").value.trim();
+    const number = document.getElementById("reg-number").value.trim();
+    const complement = document.getElementById("reg-comp").value.trim();
+    const district = document.getElementById("reg-district").value.trim();
+    const city = document.getElementById("reg-city").value.trim();
     const preferredSize = document.getElementById("reg-size").value;
     const password = document.getElementById("reg-password").value;
 
@@ -1338,7 +1363,11 @@ if (registerForm) {
       email,
       phone,
       cep,
-      address,
+      street,
+      number,
+      complement,
+      district,
+      city,
       preferredSize,
       password,
       orders: []
@@ -1387,7 +1416,11 @@ if (profileEditForm) {
 
     currentMember.phone = profPhoneEl.value.trim();
     currentMember.cep = profCepEl.value.trim();
-    currentMember.address = profAddressEl.value.trim();
+    currentMember.street = profStreetEl.value.trim();
+    currentMember.number = profNumberEl.value.trim();
+    currentMember.complement = profCompEl.value.trim();
+    currentMember.district = profDistrictEl.value.trim();
+    currentMember.city = profCityEl.value.trim();
     currentMember.preferredSize = profSizeEl.value;
 
     const users = getStoredUsers();
@@ -1410,13 +1443,46 @@ if (memberLogoutBtn) {
   });
 }
 
-// Formatação rápida de CEP (00000-000) nos campos de cadastro e perfil
-[document.getElementById("reg-cep"), profCepEl].forEach((input) => {
-  if (!input) return;
-  input.addEventListener("input", (e) => {
+// Formatação rápida de CEP (00000-000) + Autopreenchimento ViaCEP no cadastro e perfil
+function bindCepAutoFill(cepInput, fields) {
+  if (!cepInput) return;
+  cepInput.addEventListener("input", async (e) => {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
     e.target.value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+
+    if (digits.length === 8) {
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        const data = await res.json();
+        if (!data.erro) {
+          if (fields.street && data.logradouro) fields.street.value = data.logradouro;
+          if (fields.district && data.bairro) fields.district.value = data.bairro;
+          if (fields.city && data.localidade) {
+            fields.city.value = data.uf ? `${data.localidade} - ${data.uf}` : data.localidade;
+          }
+          if (fields.number && !fields.number.value) {
+            fields.number.focus();
+          }
+        }
+      } catch (err) {
+        // fallback manual caso offline
+      }
+    }
   });
+}
+
+bindCepAutoFill(document.getElementById("reg-cep"), {
+  street: document.getElementById("reg-street"),
+  number: document.getElementById("reg-number"),
+  district: document.getElementById("reg-district"),
+  city: document.getElementById("reg-city")
+});
+
+bindCepAutoFill(profCepEl, {
+  street: profStreetEl,
+  number: profNumberEl,
+  district: profDistrictEl,
+  city: profCityEl
 });
 
 applyThemeMode(currentThemeMode);
