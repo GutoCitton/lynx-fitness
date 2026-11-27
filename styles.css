@@ -269,6 +269,7 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   color: var(--bg);
 }
 
+.account-trigger,
 .bag-trigger {
   background: transparent;
   border: 1px solid var(--line);
@@ -276,17 +277,25 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   padding: 7px 14px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   cursor: pointer;
   flex-shrink: 0;
-  transition: border-color 0.25s ease;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
+.account-trigger:hover,
 .bag-trigger:hover {
   border-color: var(--line-hover);
+}
+
+.account-trigger.logged-in {
+  border-color: var(--line-hover);
+  background: var(--surface);
 }
 
 .bag-count {
@@ -1997,6 +2006,372 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
 }
 
 /* ==========================================================================
+   Account / Member Drawer (LYNX Club)
+   ========================================================================== */
+.account-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 202;
+}
+
+.account-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.account-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+  z-index: 203;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.account-drawer.open {
+  transform: translateX(0);
+}
+
+.account-header {
+  padding: 20px 26px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.account-kicker {
+  margin-bottom: 3px;
+  font-size: 0.58rem;
+}
+
+.account-header h3 {
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+}
+
+.close-account {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.account-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 26px 28px;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 9px 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab.active {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 4px;
+}
+
+.auth-subtitle strong {
+  color: var(--text);
+}
+
+.auth-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.auth-field span {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.auth-field input,
+.auth-field select {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 10px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  width: 100%;
+}
+
+.auth-field input:focus,
+.auth-field select:focus {
+  border-color: var(--line-hover);
+}
+
+.auth-submit-btn {
+  margin-top: 6px;
+}
+
+/* Member Logged-In View */
+.member-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-tier {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.member-info strong {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.member-info span:last-child {
+  font-size: 0.75rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.member-fit-pill {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 3px 8px;
+  font-size: 0.58rem;
+}
+
+.member-profile-form {
+  margin-bottom: 24px;
+}
+
+.member-save-btn {
+  background: transparent;
+  border: 1px solid var(--line-hover);
+  color: var(--text);
+  padding: 10px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.member-save-btn:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.member-orders-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.member-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.empty-orders {
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding: 12px 0;
+}
+
+.member-order-card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.member-order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.68rem;
+}
+
+.member-order-top strong {
+  letter-spacing: 0.1em;
+}
+
+.member-order-top span {
+  color: var(--muted);
+  font-size: 0.64rem;
+}
+
+.member-order-items {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.member-order-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.member-order-bottom strong {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+}
+
+.reorder-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 4px 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reorder-btn:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.member-logout-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.member-logout-btn:hover {
+  color: var(--text);
+  border-color: var(--line-hover);
+}
+
+/* ==========================================================================
    Responsive Design System (Desktop, Laptop, Tablet & Mobile)
    ========================================================================== */
 
@@ -2095,11 +2470,12 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   .theme-btn {
     padding: 5px 6px;
   }
+  .account-trigger,
   .bag-trigger {
-    padding: 6px 10px;
-    gap: 7px;
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
+    padding: 6px 9px;
+    gap: 6px;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
   }
   .nav {
     order: 3;
@@ -2238,9 +2614,14 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   .cart-header,
   .free-shipping-box,
   .cart-items,
-  .cart-footer {
+  .cart-footer,
+  .account-header,
+  .account-body {
     padding-left: 18px;
     padding-right: 18px;
+  }
+  .auth-row-2 {
+    grid-template-columns: 1fr;
   }
   .cart-item {
     flex-direction: column;

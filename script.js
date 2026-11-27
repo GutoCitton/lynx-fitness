@@ -496,6 +496,9 @@ if (fitCalcSubmit && fitHeightInput && fitWeightInput && fitCalcResult) {
     selectSize(product.id, rec);
     fitCalcResult.hidden = false;
     fitCalcResult.innerHTML = `✓ Recomendamos o tamanho <strong>${rec}</strong> para você (${h} cm · ${w} kg) — selecionado automaticamente.`;
+    if (typeof updateMemberFitSize === "function") {
+      updateMemberFitSize(rec);
+    }
     showToast(`Tamanho ${rec} recomendado e selecionado.`);
   });
 }
@@ -782,26 +785,49 @@ document.getElementById("checkout-btn").addEventListener("click", () => {
     `*LYNX — RESUMO DO PEDIDO ${orderCode}*`,
     `_Série 01 · Blackout Edition_`,
     `────────────────────────`,
-    `Olá! Gostaria de finalizar meu pedido feito pelo site:`,
+    `Olá! Gostaria de finalizar meu pedido feito pelo site:`
+  ];
+
+  if (currentMember) {
+    summaryLines.push(
+      ``,
+      `*DADOS DO CLIENTE (LYNX CLUB):*`,
+      `• Nome: *${currentMember.name}*`,
+      `• WhatsApp: ${currentMember.phone}`,
+      `• CEP: *${currentMember.cep}*`,
+      `• Endereço: ${currentMember.address}`
+    );
+  }
+
+  summaryLines.push(
     ``,
     `*ITENS SELECIONADOS (${totalItems} ${totalItems === 1 ? "peça" : "peças"}):*`,
     itemBlocks.join("\n\n"),
     ``,
     `────────────────────────`,
     `*RESUMO FINANCEIRO:*`
-  ];
+  );
 
   if (couponObj && discount > 0) {
     summaryLines.push(`• Subtotal: ${formatBRL(subtotal)}`);
     summaryLines.push(`• Cupom Aplicado (*${couponObj.code}* -${couponObj.percent}%): -${formatBRL(discount)}`);
   }
 
-  summaryLines.push(`• Frete: *${hasFreeShipping ? "GRÁTIS (Acima de R$ 299)" : "A calcular (informar CEP)"}*`);
+  summaryLines.push(`• Frete: *${hasFreeShipping ? "GRÁTIS (Acima de R$ 299)" : currentMember ? `A calcular para CEP ${currentMember.cep}` : "A calcular (informar CEP)"}*`);
   summaryLines.push(`• *TOTAL DO PEDIDO: ${formatBRL(finalTotal)}*`);
   summaryLines.push(`────────────────────────`);
   summaryLines.push(`Aguardo as informações para envio e pagamento.`);
 
   const summaryMsg = summaryLines.join("\n");
+
+  if (currentMember) {
+    recordMemberOrder({
+      code: orderCode,
+      date: new Date().toLocaleDateString("pt-BR"),
+      total: finalTotal,
+      items: cart.map(item => ({ ...item }))
+    });
+  }
 
   showToast("Pedido gerado! Abrindo WhatsApp...");
   window.open(`https://wa.me/5551996968550?text=${encodeURIComponent(summaryMsg)}`, "_blank", "noopener,noreferrer");
@@ -1060,6 +1086,342 @@ systemDarkMatcher.addEventListener("change", () => {
   }
 });
 
+// ==========================================================================
+// Área do Membro / Login & Cadastro (LYNX Club)
+// ==========================================================================
+const USERS_STORAGE_KEY = "lynx-club-users-v1";
+const SESSION_STORAGE_KEY = "lynx-club-session-v1";
+
+const openAccountBtn = document.getElementById("open-account");
+const closeAccountBtn = document.getElementById("close-account");
+const accountDrawer = document.getElementById("account-drawer");
+const accountOverlay = document.getElementById("account-overlay");
+const accountBtnLabel = document.getElementById("account-btn-label");
+const accountDrawerTitle = document.getElementById("account-drawer-title");
+
+const authGuestView = document.getElementById("auth-guest-view");
+const authMemberView = document.getElementById("auth-member-view");
+const authTabs = document.querySelectorAll(".auth-tab");
+const loginForm = document.getElementById("login-form");
+const registerForm = document.getElementById("register-form");
+const profileEditForm = document.getElementById("profile-edit-form");
+const memberLogoutBtn = document.getElementById("member-logout-btn");
+
+const memberAvatarEl = document.getElementById("member-avatar");
+const memberGreetingEl = document.getElementById("member-greeting");
+const memberEmailDisplayEl = document.getElementById("member-email-display");
+const memberFitBadgeEl = document.getElementById("member-fit-badge");
+const memberOrdersCountEl = document.getElementById("member-orders-count");
+const memberOrdersListEl = document.getElementById("member-orders-list");
+
+const profPhoneEl = document.getElementById("prof-phone");
+const profCepEl = document.getElementById("prof-cep");
+const profAddressEl = document.getElementById("prof-address");
+const profSizeEl = document.getElementById("prof-size");
+
+let currentMember = null;
+
+function getStoredUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveStoredUsers(users) {
+  try {
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  } catch (err) {
+    // ignore storage errors
+  }
+}
+
+function loadActiveMemberSession() {
+  try {
+    const email = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!email) return null;
+    const users = getStoredUsers();
+    return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function setActiveMemberSession(member) {
+  currentMember = member;
+  try {
+    if (member) {
+      localStorage.setItem(SESSION_STORAGE_KEY, member.email);
+    } else {
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    }
+  } catch (err) {
+    // ignore
+  }
+  applyMemberPreferredSize();
+  updateAccountUI();
+}
+
+function applyMemberPreferredSize() {
+  if (!currentMember || !currentMember.preferredSize) return;
+  const pref = currentMember.preferredSize;
+  products.forEach(p => {
+    if (p.sizes.includes(pref)) {
+      p.selectedSize = pref;
+    }
+  });
+  renderProducts(currentCategory);
+}
+
+function updateMemberFitSize(newSize) {
+  if (!currentMember) return;
+  currentMember.preferredSize = newSize;
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.email.toLowerCase() === currentMember.email.toLowerCase());
+  if (idx !== -1) {
+    users[idx].preferredSize = newSize;
+    saveStoredUsers(users);
+  }
+  updateAccountUI();
+}
+
+function getInitials(name) {
+  const parts = String(name || "LX").trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function getFirstName(name) {
+  return String(name || "Membro").trim().split(/\s+/)[0];
+}
+
+function recordMemberOrder(orderData) {
+  if (!currentMember) return;
+  if (!Array.isArray(currentMember.orders)) {
+    currentMember.orders = [];
+  }
+  currentMember.orders.unshift(orderData);
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.email.toLowerCase() === currentMember.email.toLowerCase());
+  if (idx !== -1) {
+    users[idx].orders = currentMember.orders;
+    saveStoredUsers(users);
+  }
+  updateAccountUI();
+}
+
+function reorderFromHistory(orderIndex) {
+  if (!currentMember || !currentMember.orders || !currentMember.orders[orderIndex]) return;
+  const pastOrder = currentMember.orders[orderIndex];
+  pastOrder.items.forEach(pastItem => {
+    const existing = cart.find(c => c.itemKey === pastItem.itemKey);
+    if (existing) {
+      existing.qty += pastItem.qty || 1;
+    } else {
+      cart.push({ ...pastItem });
+    }
+  });
+  saveCart();
+  updateCartUI();
+  closeAccount();
+  openCart();
+  showToast(`Itens do pedido ${pastOrder.code} adicionados à sacola!`);
+}
+
+function updateAccountUI() {
+  if (!openAccountBtn || !accountBtnLabel) return;
+
+  if (!currentMember) {
+    openAccountBtn.classList.remove("logged-in");
+    accountBtnLabel.textContent = "ENTRAR";
+    if (accountDrawerTitle) accountDrawerTitle.textContent = "ACESSO DO MEMBRO";
+    if (authGuestView) authGuestView.hidden = false;
+    if (authMemberView) authMemberView.hidden = true;
+    return;
+  }
+
+  const firstName = getFirstName(currentMember.name);
+  openAccountBtn.classList.add("logged-in");
+  accountBtnLabel.textContent = firstName.toUpperCase();
+  if (accountDrawerTitle) accountDrawerTitle.textContent = "MINHA CONTA";
+  if (authGuestView) authGuestView.hidden = true;
+  if (authMemberView) authMemberView.hidden = false;
+
+  if (memberAvatarEl) memberAvatarEl.textContent = getInitials(currentMember.name);
+  if (memberGreetingEl) memberGreetingEl.textContent = `Olá, ${firstName}`;
+  if (memberEmailDisplayEl) memberEmailDisplayEl.textContent = currentMember.email;
+  if (memberFitBadgeEl) memberFitBadgeEl.textContent = `Tam. Ideal: ${currentMember.preferredSize || "M"}`;
+
+  if (profPhoneEl) profPhoneEl.value = currentMember.phone || "";
+  if (profCepEl) profCepEl.value = currentMember.cep || "";
+  if (profAddressEl) profAddressEl.value = currentMember.address || "";
+  if (profSizeEl) profSizeEl.value = currentMember.preferredSize || "M";
+
+  const orders = Array.isArray(currentMember.orders) ? currentMember.orders : [];
+  if (memberOrdersCountEl) {
+    memberOrdersCountEl.textContent = `${orders.length} ${orders.length === 1 ? "pedido" : "pedidos"}`;
+  }
+
+  if (memberOrdersListEl) {
+    if (orders.length === 0) {
+      memberOrdersListEl.innerHTML = `<p class="empty-orders">Você ainda não realizou pedidos com esta conta.</p>`;
+    } else {
+      memberOrdersListEl.innerHTML = orders.map((ord, idx) => {
+        const itemsText = ord.items.map(i => `${i.qty || 1}x ${i.name} (${i.colorName} · ${i.size})`).join("<br>");
+        return `
+          <div class="member-order-card">
+            <div class="member-order-top">
+              <strong>PEDIDO ${ord.code}</strong>
+              <span>${ord.date}</span>
+            </div>
+            <div class="member-order-items">${itemsText}</div>
+            <div class="member-order-bottom">
+              <strong>${formatBRL(ord.total)}</strong>
+              <button type="button" class="reorder-btn" onclick="reorderFromHistory(${idx})">Refazer Pedido</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+}
+
+function openAccount() {
+  if (!accountDrawer || !accountOverlay) return;
+  closeCart();
+  accountDrawer.classList.add("open");
+  accountOverlay.classList.add("open");
+}
+
+function closeAccount() {
+  if (!accountDrawer || !accountOverlay) return;
+  accountDrawer.classList.remove("open");
+  accountOverlay.classList.remove("open");
+}
+
+if (openAccountBtn) openAccountBtn.addEventListener("click", openAccount);
+if (closeAccountBtn) closeAccountBtn.addEventListener("click", closeAccount);
+if (accountOverlay) accountOverlay.addEventListener("click", closeAccount);
+
+authTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.authTab;
+    authTabs.forEach(t => t.classList.toggle("active", t === tab));
+    if (loginForm && registerForm) {
+      loginForm.hidden = target !== "login";
+      registerForm.hidden = target !== "register";
+    }
+  });
+});
+
+if (registerForm) {
+  registerForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("reg-name").value.trim();
+    const email = document.getElementById("reg-email").value.trim().toLowerCase();
+    const phone = document.getElementById("reg-phone").value.trim();
+    const cep = document.getElementById("reg-cep").value.trim();
+    const address = document.getElementById("reg-address").value.trim();
+    const preferredSize = document.getElementById("reg-size").value;
+    const password = document.getElementById("reg-password").value;
+
+    const users = getStoredUsers();
+    if (users.some(u => u.email.toLowerCase() === email)) {
+      showToast("Este e-mail já possui cadastro. Faça login.");
+      return;
+    }
+
+    const newUser = {
+      name,
+      email,
+      phone,
+      cep,
+      address,
+      preferredSize,
+      password,
+      orders: []
+    };
+
+    users.push(newUser);
+    saveStoredUsers(users);
+    setActiveMemberSession(newUser);
+
+    // Ativa automaticamente o cupom de boas-vindas LYNX10 caso nenhum cupom maior esteja ativo
+    if (!appliedCoupon) {
+      appliedCoupon = "LYNX10";
+      if (couponInputEl) couponInputEl.value = "LYNX10";
+      updateCartUI();
+    }
+
+    registerForm.reset();
+    showToast(`Bem-vindo ao LYNX Club, ${getFirstName(name)}! Cupom LYNX10 (10% OFF) ativado.`);
+  });
+}
+
+if (loginForm) {
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim().toLowerCase();
+    const password = document.getElementById("login-password").value;
+
+    const users = getStoredUsers();
+    const found = users.find(u => u.email.toLowerCase() === email && u.password === password);
+
+    if (!found) {
+      showToast("E-mail ou senha incorretos.");
+      return;
+    }
+
+    setActiveMemberSession(found);
+    loginForm.reset();
+    showToast(`Bem-vindo de volta, ${getFirstName(found.name)}!`);
+  });
+}
+
+if (profileEditForm) {
+  profileEditForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!currentMember) return;
+
+    currentMember.phone = profPhoneEl.value.trim();
+    currentMember.cep = profCepEl.value.trim();
+    currentMember.address = profAddressEl.value.trim();
+    currentMember.preferredSize = profSizeEl.value;
+
+    const users = getStoredUsers();
+    const idx = users.findIndex(u => u.email.toLowerCase() === currentMember.email.toLowerCase());
+    if (idx !== -1) {
+      users[idx] = { ...currentMember };
+      saveStoredUsers(users);
+    }
+
+    applyMemberPreferredSize();
+    updateAccountUI();
+    showToast("Dados de entrega e tamanho atualizados!");
+  });
+}
+
+if (memberLogoutBtn) {
+  memberLogoutBtn.addEventListener("click", () => {
+    setActiveMemberSession(null);
+    showToast("Você saiu da sua conta LYNX Club.");
+  });
+}
+
+// Formatação rápida de CEP (00000-000) nos campos de cadastro e perfil
+[document.getElementById("reg-cep"), profCepEl].forEach((input) => {
+  if (!input) return;
+  input.addEventListener("input", (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    e.target.value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+  });
+});
+
 applyThemeMode(currentThemeMode);
+currentMember = loadActiveMemberSession();
 renderProducts();
+applyMemberPreferredSize();
+updateAccountUI();
 updateCartUI();

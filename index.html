@@ -88,6 +88,14 @@
           </button>
         </div>
 
+        <button class="account-trigger" id="open-account" aria-label="Área do Membro LYNX">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span id="account-btn-label">ENTRAR</span>
+        </button>
+
         <button class="bag-trigger" id="open-cart" aria-label="Abrir sacola">
           <span>SACOLA</span>
           <span class="bag-count" id="cart-count">0</span>
@@ -591,6 +599,146 @@
         </svg>
         <span>Finalizar Pedido no WhatsApp</span>
       </button>
+    </div>
+  </aside>
+
+  <!-- Painel Lateral de Login / Área do Membro LYNX Club -->
+  <div class="account-overlay" id="account-overlay"></div>
+  <aside class="account-drawer" id="account-drawer" aria-label="Área do Membro LYNX">
+    <div class="account-header">
+      <div>
+        <span class="kicker account-kicker">LYNX CLUB</span>
+        <h3 id="account-drawer-title">ACESSO DO MEMBRO</h3>
+      </div>
+      <button class="close-account" id="close-account" aria-label="Fechar">&times;</button>
+    </div>
+
+    <div class="account-body">
+      <!-- Visão 1: Não Logado (Entrar / Criar Conta) -->
+      <div id="auth-guest-view">
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab active" data-auth-tab="login">Entrar</button>
+          <button type="button" class="auth-tab" data-auth-tab="register">Criar Conta</button>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="login-form" class="auth-form">
+          <p class="auth-subtitle">Acesse sua conta para carregar seus dados de entrega, tamanho ideal e histórico de pedidos.</p>
+          <label class="auth-field">
+            <span>E-mail</span>
+            <input type="email" id="login-email" placeholder="seu@email.com" required />
+          </label>
+          <label class="auth-field">
+            <span>Senha</span>
+            <input type="password" id="login-password" placeholder="••••••••" required />
+          </label>
+          <button type="submit" class="btn-solid btn-full auth-submit-btn">Entrar na Conta →</button>
+        </form>
+
+        <!-- Formulário de Cadastro -->
+        <form id="register-form" class="auth-form" hidden>
+          <p class="auth-subtitle">Cadastre-se no LYNX Club para finalizar pedidos em 1 clique e ganhar <strong>10% OFF</strong> automático.</p>
+          <label class="auth-field">
+            <span>Nome Completo</span>
+            <input type="text" id="reg-name" placeholder="Ex: Augusto Citton" required />
+          </label>
+          <label class="auth-field">
+            <span>E-mail</span>
+            <input type="email" id="reg-email" placeholder="seu@email.com" required />
+          </label>
+          <div class="auth-row-2">
+            <label class="auth-field">
+              <span>WhatsApp</span>
+              <input type="tel" id="reg-phone" placeholder="(51) 99999-9999" required />
+            </label>
+            <label class="auth-field">
+              <span>CEP</span>
+              <input type="text" id="reg-cep" placeholder="00000-000" required />
+            </label>
+          </div>
+          <label class="auth-field">
+            <span>Endereço de Entrega (Rua, Nº, Bairro, Cidade)</span>
+            <input type="text" id="reg-address" placeholder="Ex: Rua Exemplo, 120 - Centro" required />
+          </label>
+          <div class="auth-row-2">
+            <label class="auth-field">
+              <span>Tamanho Padrão</span>
+              <select id="reg-size">
+                <option value="PP">PP</option>
+                <option value="P">P</option>
+                <option value="M" selected>M</option>
+                <option value="G">G</option>
+                <option value="GG">GG</option>
+              </select>
+            </label>
+            <label class="auth-field">
+              <span>Criar Senha</span>
+              <input type="password" id="reg-password" placeholder="Mín. 4 dígitos" minlength="4" required />
+            </label>
+          </div>
+          <button type="submit" class="btn-solid btn-full auth-submit-btn">Criar Conta & Ativar 10% OFF →</button>
+        </form>
+      </div>
+
+      <!-- Visão 2: Logado (Perfil do Membro + Histórico de Pedidos) -->
+      <div id="auth-member-view" hidden>
+        <div class="member-badge-card">
+          <div class="member-avatar" id="member-avatar">LX</div>
+          <div class="member-info">
+            <span class="member-tier">MEMBRO LYNX CLUB</span>
+            <strong id="member-greeting">Olá, Atleta</strong>
+            <span id="member-email-display">email@lynx.com</span>
+          </div>
+        </div>
+
+        <form id="profile-edit-form" class="auth-form member-profile-form">
+          <div class="member-section-head">
+            <span>DADOS PARA CHECKOUT RÁPIDO</span>
+            <span class="member-fit-pill" id="member-fit-badge">Tam. Ideal: M</span>
+          </div>
+
+          <div class="auth-row-2">
+            <label class="auth-field">
+              <span>WhatsApp</span>
+              <input type="tel" id="prof-phone" placeholder="(51) 99999-9999" required />
+            </label>
+            <label class="auth-field">
+              <span>CEP</span>
+              <input type="text" id="prof-cep" placeholder="00000-000" required />
+            </label>
+          </div>
+
+          <label class="auth-field">
+            <span>Endereço de Entrega</span>
+            <input type="text" id="prof-address" placeholder="Rua, Número, Bairro, Cidade" required />
+          </label>
+
+          <label class="auth-field">
+            <span>Tamanho Preferido</span>
+            <select id="prof-size">
+              <option value="PP">PP</option>
+              <option value="P">P</option>
+              <option value="M">M</option>
+              <option value="G">G</option>
+              <option value="GG">GG</option>
+            </select>
+          </label>
+
+          <button type="submit" class="member-save-btn">Salvar Dados de Entrega</button>
+        </form>
+
+        <div class="member-orders-block">
+          <div class="member-section-head">
+            <span>HISTÓRICO DE PEDIDOS</span>
+            <span id="member-orders-count">0 pedidos</span>
+          </div>
+          <div class="member-orders-list" id="member-orders-list">
+            <p class="empty-orders">Você ainda não realizou pedidos com esta conta.</p>
+          </div>
+        </div>
+
+        <button type="button" class="member-logout-btn" id="member-logout-btn">Sair da Conta</button>
+      </div>
     </div>
   </aside>
 
