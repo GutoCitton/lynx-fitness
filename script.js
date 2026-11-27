@@ -779,8 +779,8 @@ document.getElementById("checkout-btn").addEventListener("click", () => {
 
   const summaryMsg = summaryLines.join("\n");
 
-  showToast("Pedido gerado! Abrindo atendimento...");
-  window.open(`https://www.google.com/search?q=${encodeURIComponent(summaryMsg)}`, "_blank", "noopener,noreferrer");
+  showToast("Pedido gerado! Abrindo WhatsApp...");
+  window.open(`https://wa.me/5551996968550?text=${encodeURIComponent(summaryMsg)}`, "_blank", "noopener,noreferrer");
 
   cart = [];
   saveCart();
