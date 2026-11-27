@@ -2162,6 +2162,19 @@ h1, h2, h3, .kicker, .nav a, .bag-trigger, .btn-solid, .btn-link, .filter-tab {
   border-color: var(--line-hover);
 }
 
+.auth-field input:disabled,
+.auth-field select:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  background: transparent;
+  border-color: var(--line);
+}
+
+.member-save-btn.editing {
+  background: var(--text);
+  color: var(--bg);
+}
+
 .auth-submit-btn {
   margin-top: 6px;
 }

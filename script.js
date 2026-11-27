@@ -1123,6 +1123,34 @@ const profCompEl = document.getElementById("prof-comp");
 const profDistrictEl = document.getElementById("prof-district");
 const profCityEl = document.getElementById("prof-city");
 const profSizeEl = document.getElementById("prof-size");
+const profileActionBtn = document.getElementById("profile-action-btn");
+
+const profileInputs = [
+  profPhoneEl,
+  profCepEl,
+  profStreetEl,
+  profNumberEl,
+  profCompEl,
+  profDistrictEl,
+  profCityEl,
+  profSizeEl
+];
+
+let isProfileEditing = false;
+
+function setProfileEditingState(editing) {
+  isProfileEditing = editing;
+  profileInputs.forEach((el) => {
+    if (el) el.disabled = !editing;
+  });
+  if (profileActionBtn) {
+    profileActionBtn.textContent = editing ? "Salvar Dados de Entrega" : "Editar Dados";
+    profileActionBtn.classList.toggle("editing", editing);
+  }
+  if (editing && profPhoneEl) {
+    profPhoneEl.focus();
+  }
+}
 
 function formatMemberAddress(member) {
   if (!member) return "";
@@ -1279,6 +1307,7 @@ function updateAccountUI() {
   if (profDistrictEl) profDistrictEl.value = currentMember.district || "";
   if (profCityEl) profCityEl.value = currentMember.city || "";
   if (profSizeEl) profSizeEl.value = currentMember.preferredSize || "M";
+  setProfileEditingState(false);
 
   const orders = Array.isArray(currentMember.orders) ? currentMember.orders : [];
   if (memberOrdersCountEl) {
@@ -1409,10 +1438,20 @@ if (loginForm) {
   });
 }
 
-if (profileEditForm) {
-  profileEditForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+if (profileActionBtn && profileEditForm) {
+  profileActionBtn.addEventListener("click", () => {
     if (!currentMember) return;
+
+    // Se estava bloqueado, desbloqueia os campos para edição
+    if (!isProfileEditing) {
+      setProfileEditingState(true);
+      return;
+    }
+
+    // Se já estava em modo de edição, valida e salva os dados
+    if (!profileEditForm.reportValidity()) {
+      return;
+    }
 
     currentMember.phone = profPhoneEl.value.trim();
     currentMember.cep = profCepEl.value.trim();
@@ -1432,7 +1471,14 @@ if (profileEditForm) {
 
     applyMemberPreferredSize();
     updateAccountUI();
-    showToast("Dados de entrega e tamanho atualizados!");
+    showToast("Dados de entrega salvos com sucesso!");
+  });
+
+  profileEditForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (isProfileEditing) {
+      profileActionBtn.click();
+    }
   });
 }
 
