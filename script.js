@@ -760,22 +760,46 @@ document.getElementById("checkout-btn").addEventListener("click", () => {
     return;
   }
 
+  const totalItems = cart.reduce((acc, item) => acc + (item.qty || 1), 0);
   const subtotal = cart.reduce((acc, item) => acc + item.price * (item.qty || 1), 0);
   const couponObj = VALID_COUPONS[appliedCoupon] || null;
   const discount = couponObj ? subtotal * (couponObj.percent / 100) : 0;
   const finalTotal = Math.max(0, subtotal - discount);
   const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const lines = cart.map(item => `• ${item.qty || 1}x ${item.name} (${item.colorName} | Tam. ${item.size}) — ${formatBRL(item.price * (item.qty || 1))}`);
+  const orderCode = `#LX-${String(Date.now()).slice(-4)}`;
+
+  const itemBlocks = cart.map((item, idx) => {
+    const qty = item.qty || 1;
+    const lineTotal = formatBRL(item.price * qty);
+    return [
+      `*${String(idx + 1).padStart(2, "0")}. ${item.name}*`,
+      `   ▸ Cor: ${item.colorName}  |  Tam: *${item.size}*`,
+      `   ▸ Qtd: ${qty} un.  —  *${lineTotal}*`
+    ].join("\n");
+  });
+
   const summaryLines = [
-    "Olá! Quero finalizar meu pedido na LYNX:",
-    ...lines,
-    `Subtotal: ${formatBRL(subtotal)}`
+    `*LYNX — RESUMO DO PEDIDO ${orderCode}*`,
+    `_Série 01 · Blackout Edition_`,
+    `────────────────────────`,
+    `Olá! Gostaria de finalizar meu pedido feito pelo site:`,
+    ``,
+    `*ITENS SELECIONADOS (${totalItems} ${totalItems === 1 ? "peça" : "peças"}):*`,
+    itemBlocks.join("\n\n"),
+    ``,
+    `────────────────────────`,
+    `*RESUMO FINANCEIRO:*`
   ];
+
   if (couponObj && discount > 0) {
-    summaryLines.push(`Cupom Aplicado (${couponObj.code} -${couponObj.percent}%): -${formatBRL(discount)}`);
+    summaryLines.push(`• Subtotal: ${formatBRL(subtotal)}`);
+    summaryLines.push(`• Cupom Aplicado (*${couponObj.code}* -${couponObj.percent}%): -${formatBRL(discount)}`);
   }
-  summaryLines.push(`Total Final: ${formatBRL(finalTotal)}`);
-  summaryLines.push(hasFreeShipping ? "Frete: GRÁTIS" : "Frete: A calcular");
+
+  summaryLines.push(`• Frete: *${hasFreeShipping ? "GRÁTIS (Acima de R$ 299)" : "A calcular (informar CEP)"}*`);
+  summaryLines.push(`• *TOTAL DO PEDIDO: ${formatBRL(finalTotal)}*`);
+  summaryLines.push(`────────────────────────`);
+  summaryLines.push(`Aguardo as informações para envio e pagamento.`);
 
   const summaryMsg = summaryLines.join("\n");
 
